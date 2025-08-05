@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shun Li | Academic Homepage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      min-height: 100vh;
+      background-color: #f9f9f9;
+      color: #222;
+    }
+    .sidebar {
+      background-color: #fff;
+      width: 280px;
+      padding: 40px 20px;
+      box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sidebar img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+    }
+    .sidebar h1 {
+      font-size: 1.8em;
+      margin: 10px 0 5px;
+      text-align: center;
+    }
+    .sidebar p, .sidebar .links {
+      text-align: center;
+      font-size: 0.95em;
+      color: #666;
+      margin: 4px 0;
+    }
+    .sidebar .links a {
+      display: block;
+      margin: 14px 0;
+      text-decoration: none;
+      color: #0077cc;
+      font-size: 1em;
+    }
+    .sidebar .links a:hover {
+      text-decoration: underline;
+    }
+    .content {
+      flex: 1;
+      padding: 40px;
+    }
+    section {
+      max-width: 800px;
+      margin: 0 auto 60px;
+    }
+    h2 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+      margin-top: 40px;
+    }
+    .lang-toggle {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      font-size: 0.9em;
+    }
+    .lang-toggle button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin: 0 5px;
+      color: #0077cc;
+    }
+    .contact {
+      border-top: 1px solid #ddd;
+      padding: 20px;
+      text-align: center;
+      font-size: 0.95em;
+      margin-top: 60px;
+    }
+    .cn { display: none; }
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        box-shadow: none;
+      }
+      .content {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="lang-toggle">
+    <button onclick="setLang('en')">English</button> |
+    <button onclick="setLang('cn')">中文</button>
+  </div>
+
+  <div class="sidebar">
+    <img src="images/shunli.jpg" alt="Shun Li profile photo">
+    <h1>Shun Li (李顺)</h1>
+    <p>Dankook University</p>
+    <p>Department of business administration</p>
+    <p>Ph.D in Financial management</p>
+    <p class="en">Email: <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a></p>
+    <div class="links">
+
+      <a
+      id="cy-effective-orcid-url"
+      class="underline"
+      href="https://orcid.org/0009-0001-7167-7479"
+      target="orcid.widget"
+      rel="me noopener noreferrer"
+      style="vertical-align: top">
+<!--      <img-->
+<!--        src="https://orcid.org/sites/default/files/images/orcid_16x16.png"-->
+<!--        style="width: 1em; height: 1em; vertical-align: margin-left: 0.5em"-->
+<!--        alt="ORCID iD icon"/>-->
+        ORCID
+      </a>
+      <a href="https://www.scopus.com/authid/detail.uri?authorId=59491989200" target="_blank">Scopus</a>
+      <a href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en" target="_blank">Google Scholar</a>
+      <a href="https://www.webofscience.com/wos/author/record/LUZ-1556-2024" target="_blank">Web of Science</a>
+
+    </div>
+  </div>
+
+  <div class="content">
+    <section>
+      <h2 class="en">About Me</h2>
+      <h2 class="cn">关于我</h2>
+      <p class="en">I am a lecturer in finance with research interests in <strong>Financial Economics</strong>, <strong>Behavioral Finance</strong>, and <strong>Asset Pricing</strong>. My current work focuses on volatility modeling, macro-finance interaction, and the role of geopolitical risk in financial markets.</p>
+      <p class="cn">我是一名金融学讲师，研究方向包括<strong>金融经济学</strong>、<strong>行为金融学</strong>和<strong>资产定价</strong>。当前研究聚焦于波动率建模、宏观与金融市场的相互作用以及地缘政治风险在金融市场中的作用。</p>
+    </section>
+
+    <section>
+      <h2 class="en">Research Interests</h2>
+      <h2 class="cn">研究方向</h2>
+      <ul class="en">
+        <li>Financial Economics</li>
+        <li>Behavioral Finance</li>
+        <li>Volatility and GARCH-MIDAS Models</li>
+        <li>Geopolitical Risk and Market Behavior</li>
+      </ul>
+      <ul class="cn">
+        <li>金融经济学</li>
+        <li>行为金融学</li>
+        <li>波动率建模与GARCH-MIDAS模型</li>
+        <li>地缘政治风险与市场行为</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="en">Publications</h2>
+      <h2 class="cn">学术成果</h2>
+      <ul>
+        <li>
+          <p class="en">
+            Li, S., & Liu, Y. (2025). <strong>Geopolitical risk and U.S. stock market volatility: Evidence from the U.S.–China Tension Index</strong>.
+            <em>Applied Economics Letters</em>, 1–7.
+            <a href="https://doi.org/10.1080/13504851.2025.2534501" target="_blank" rel="noopener noreferrer">
+              https://doi.org/10.1080/13504851.2025.2534501
+            </a>
+          </p>
+          <p class="cn">
+        Li, S., & Liu, Y. (2025). <strong>Geopolitical risk and U.S. stock market volatility: Evidence from the U.S.–China Tension Index</strong>.
+            <em>Applied Economics Letters</em>, 1–7.
+            <a href="https://doi.org/10.1080/13504851.2025.2534501" target="_blank" rel="noopener noreferrer">
+              https://doi.org/10.1080/13504851.2025.2534501
+            </a>
+          </p>
+        </li>
+      </ul>
+      <p class="en">Coming soon...</p>
+      <p class="cn">即将上线...</p>
+    </section>
+
+    </section>
+
+    <section>
+      <h2 class="en">Courses Taught</h2>
+      <h2 class="cn">授课课程</h2>
+      <p class="en">Coming soon...</p>
+      <p class="cn">即将上线...</p>
+    </section>
+
+
+
+    <footer class="contact">
+      &copy; 2025 Shun Li. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    function setLang(lang) {
+      const en = document.querySelectorAll('.en');
+      const cn = document.querySelectorAll('.cn');
+      if (lang === 'en') {
+        en.forEach(e => e.style.display = 'block');
+        cn.forEach(c => c.style.display = 'none');
+      } else {
+        cn.forEach(c => c.style.display = 'block');
+        en.forEach(e => e.style.display = 'none');
+      }
+    }
+    setLang('en');
+  </script>
+</body>
+</html>
