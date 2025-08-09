@@ -171,7 +171,7 @@
   setLang('en');
 
   // 动态加载 publications.json
-  fetch('publications.json')
+  fetch('data/publications.json')
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById('publications-container');
