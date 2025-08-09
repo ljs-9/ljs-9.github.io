@@ -155,6 +155,71 @@
   <div id="publications-container"></div>
 </section>
 
+<script>
+  // 语言切换保留
+  function setLang(lang) {
+    const en = document.querySelectorAll('.en');
+    const cn = document.querySelectorAll('.cn');
+    if (lang === 'en') {
+      en.forEach(e => e.style.display = 'block');
+      cn.forEach(c => c.style.display = 'none');
+    } else {
+      cn.forEach(c => c.style.display = 'block');
+      en.forEach(e => e.style.display = 'none');
+    }
+  }
+  setLang('en');
+
+  // 动态加载 publications.json
+  fetch('publications.json')
+    .then(res => res.json())
+    .then(data => {
+      const container = document.getElementById('publications-container');
+
+      // 按年份分组
+      const grouped = data.reduce((acc, pub) => {
+        (acc[pub.year] = acc[pub.year] || []).push(pub);
+        return acc;
+      }, {});
+
+      // 年份倒序排列
+      const years = Object.keys(grouped).sort((a,b) => b - a);
+
+      years.forEach(year => {
+        const yearDiv = document.createElement('div');
+        yearDiv.className = 'pub-year';
+        yearDiv.textContent = year;
+        container.appendChild(yearDiv);
+
+        const ul = document.createElement('ul');
+        ul.className = 'pub-list';
+
+        grouped[year].forEach(pub => {
+          const li = document.createElement('li');
+
+          // 英文
+          const pEn = document.createElement('p');
+          pEn.className = 'en';
+          pEn.innerHTML = `${pub.authors} (${pub.year}). <strong>${pub.title}</strong>. <em>${pub.journal}</em>, ${pub.pages}. <a href="${pub.doi}" target="_blank" rel="noopener noreferrer">DOI</a> | <a href="${pub.pdf}" target="_blank" rel="noopener noreferrer" download>[PDF]</a>`;
+          li.appendChild(pEn);
+
+          // 中文（这里简单复制英文，建议以后改成中文描述）
+          const pCn = document.createElement('p');
+          pCn.className = 'cn';
+          pCn.innerHTML = pEn.innerHTML;
+          li.appendChild(pCn);
+
+          ul.appendChild(li);
+        });
+
+        container.appendChild(ul);
+      });
+    })
+    .catch(() => {
+      document.getElementById('publications-container').textContent = 'Failed to load publications data.';
+    });
+</script>
+
 
     <section>
   <h2 class="en">Publications</h2>
