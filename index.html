@@ -200,7 +200,7 @@
           // 英文
           const pEn = document.createElement('p');
           pEn.className = 'en';
-          pEn.innerHTML = `${pub.authors} (${pub.year}). <strong>${pub.title}</strong>. <em>${pub.journal}</em>, ${pub.pages}. <a href="${pub.doi}" target="_blank" rel="noopener noreferrer">DOI</a> | <a href="${pub.pdf}" target="_blank" rel="noopener noreferrer" download>[PDF]</a>`;
+          pEn.innerHTML = `${pub.authors} (${pub.year}). <strong>${pub.title}</strong>. <em>${pub.journal}</em>, ${pub.pages}. <a href="${pub.doi}" target="_blank" rel="noopener noreferrer">🔗 DOI</a> | <a href="${pub.pdf}" target="_blank" rel="noopener noreferrer" download>📄 PDF</a>`;
           li.appendChild(pEn);
 
           // 中文（这里简单复制英文，建议以后改成中文描述）
