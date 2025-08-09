@@ -150,6 +150,32 @@
     <section>
   <h2 class="en">Publications</h2>
   <h2 class="cn">学术成果</h2>
+
+  {% assign years = site.data.publications | map: "year" | uniq | sort: "year" | reverse %}
+  {% for y in years %}
+    <div class="pub-year">{{ y }}</div>
+    <ul class="pub-list">
+      {% for pub in site.data.publications %}
+        {% if pub.year == y %}
+          <li>
+            <p class="en">
+              {{ pub.authors }} ({{ pub.year }}). 
+              <strong>{{ pub.title }}</strong>. 
+              <em>{{ pub.journal }}</em>, {{ pub.pages }}.
+              {% if pub.doi %}<a href="{{ pub.doi }}" target="_blank" rel="noopener noreferrer">DOI</a>{% endif %}
+              {% if pub.pdf %} | <a href="{{ pub.pdf }}" target="_blank" rel="noopener noreferrer">[PDF]</a>{% endif %}
+            </p>
+          </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</section>
+
+
+    <section>
+  <h2 class="en">Publications</h2>
+  <h2 class="cn">学术成果</h2>
   <ul>
     <li>
       <p class="en">
