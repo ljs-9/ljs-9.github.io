@@ -6,11 +6,12 @@ from serpapi import GoogleSearch
 # ================= 配置 =================
 GOOGLE_SCHOLAR_ID = "UdIP7WoAAAAJ"
 SERPAPI_KEY = os.getenv("SERPAPI_KEY")  # GitHub Secret
-DATA_PATH = "data/publications.json"
-PDF_FOLDER = "papers"  # 本地 PDF 文件夹
 
 if not SERPAPI_KEY:
     raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
+
+DATA_PATH = "data/publications.json"
+PDF_FOLDER = "papers"  # 本地 PDF 文件夹
 
 # ================= 读取旧数据 =================
 if os.path.exists(DATA_PATH):
@@ -40,15 +41,10 @@ if "articles" not in results:
 articles = results["articles"]
 
 # ================= CrossRef 获取 DOI =================
-def fetch_doi(title, authors="", journal=""):
+def fetch_doi(title):
     """使用 CrossRef API 自动查找 DOI"""
-    query = title
-    if authors:
-        query += " " + authors.split(",")[0]
-    if journal:
-        query += " " + journal
     url = "https://api.crossref.org/works"
-    params = {"query.bibliographic": query, "rows": 1}
+    params = {"query.title": title, "rows": 1}
     try:
         res = requests.get(url, params=params, timeout=10)
         data = res.json()
@@ -76,7 +72,7 @@ for art in articles:
     # 自动抓 DOI，如果旧的没有
     doi = old_entry.get("doi", "")
     if not doi:
-        doi = fetch_doi(title, authors, journal)
+        doi = fetch_doi(title)
 
     # PDF 文件路径优先保留旧的
     pdf_path = old_pdf or f"{PDF_FOLDER}/{title.replace(' ', '_')}.pdf"
