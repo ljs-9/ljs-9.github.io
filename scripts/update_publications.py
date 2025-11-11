@@ -2,7 +2,7 @@ import json
 import requests
 from datetime import datetime
 
-SCHOLAR_ID = "UdIP7WoAAAAJ&hl"
+SCHOLAR_ID = "UdIP7WoAAAAJ"
 URL = f"https://serpapi.com/search.json?engine=google_scholar_author&author_id={SCHOLAR_ID}&api_key=${{ secrets.SERPAPI_KEY }}"
 
 r = requests.get(URL)
