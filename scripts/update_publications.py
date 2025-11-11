@@ -1,38 +1,48 @@
-name: Update Google Scholar Citations
+import json
+import requests
+from datetime import datetime
+import os
 
-on:
-  schedule:
-    - cron: '0 0 * * *'   # 每天 UTC 00:00（北京时间 08:00）
-  workflow_dispatch:
+# Google Scholar ID
+SCHOLAR_ID = "UdIP7WoAAAAJ"
 
-permissions:
-  contents: write
+# 从 GitHub Secret 读取 SerpAPI key
+API_KEY = os.getenv("SERPAPI_KEY")
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
+if not API_KEY:
+    raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
 
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+URL = f"https://serpapi.com/search.json?engine=google_scholar_author&author_id={SCHOLAR_ID}&api_key={API_KEY}"
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
+print("🔍 Fetching publications from SerpAPI...")
 
-      - name: Install dependencies
-        run: pip install requests
+r = requests.get(URL)
+if r.status_code != 200:
+    raise Exception(f"❌ API request failed: {r.status_code} - {r.text}")
 
-      - name: Run update script
-        env:
-          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
-        run: python scripts/update_publications.py
+data = r.json()
+articles = data.get("articles", [])
 
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/publications.json
-          git commit -m "Auto update Google Scholar citations [$(date '+%Y-%m-%d')]"
-          git push
+publications = []
+for pub in articles:
+    publications.append({
+        "title": pub.get("title", ""),
+        "authors": pub.get("authors", ""),
+        "year": pub.get("year", ""),
+        "journal": pub.get("publication", ""),
+        "pages": "",
+        "citations": pub.get("cited_by", {}).get("value", 0),
+        "doi": "",
+        "pdf": pub.get("link", "")
+    })
+
+# 输出路径
+output_path = "data/publications.json"
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+# 保存为 JSON 文件
+with open(output_path, "w", encoding="utf-8") as f:
+    json.dump(publications, f, ensure_ascii=False, indent=2)
+
+print(f"✅ Updated {len(publications)} publications.")
+print(f"📅 Last updated: {datetime.now()}")
