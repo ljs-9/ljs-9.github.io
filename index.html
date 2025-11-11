@@ -172,48 +172,51 @@
 
     // === Publications Section ===
     fetch('data/publications.json')
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById('publications-container');
-    container.innerHTML = '';
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('publications-container');
+        container.innerHTML = '';
 
-    // 按年份分组
-    const grouped = data.reduce((acc, pub) => {
-      (acc[pub.year] = acc[pub.year] || []).push(pub);
-      return acc;
-    }, {});
+        if (!Array.isArray(data) || data.length === 0) {
+          container.textContent = 'No publication data available.';
+          return;
+        }
 
-    const years = Object.keys(grouped).sort((a,b) => b - a);
+        const grouped = data.reduce((acc, pub) => {
+          const year = pub.year || "Unknown";
+          (acc[year] = acc[year] || []).push(pub);
+          return acc;
+        }, {});
+        const years = Object.keys(grouped).sort((a, b) => b - a);
 
-    years.forEach(year => {
-      const yearDiv = document.createElement('div');
-      yearDiv.className = 'pub-year';
-      yearDiv.innerHTML = `<h3>${year}</h3>`;
-      container.appendChild(yearDiv);
+        years.forEach(year => {
+          const yearDiv = document.createElement('div');
+          yearDiv.className = 'pub-year';
+          yearDiv.innerHTML = `<h3>${year}</h3>`;
+          container.appendChild(yearDiv);
 
-      const ul = document.createElement('ul');
+          const ul = document.createElement('ul');
+          grouped[year].forEach(pub => {
+            const li = document.createElement('li');
+            const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
+            const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : '';
+            const pdfLink = pub.pdf ? `<a href="${pub.pdf}" target="_blank">📄 PDF</a>` : '';
 
-      grouped[year].forEach(pub => {
-        const li = document.createElement('li');
-
-        const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : 'DOI not available';
-        const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
-        li.innerHTML = `
-          <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
-          <em>${pub.journal}</em>, ${pub.pages}.
-          ${doiLink} | <a href="${pub.pdf}" target="_blank">📄 PDF</a>
-          ${citationText}</p>
-        `;
-
-        ul.appendChild(li);
+            li.innerHTML = `
+              <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
+              <em>${pub.journal}</em> ${pub.pages || ''}.
+              ${doiLink} ${pdfLink} ${citationText}</p>
+            `;
+            ul.appendChild(li);
+          });
+          container.appendChild(ul);
+        });
+      })
+      .catch(err => {
+        document.getElementById('publications-container').textContent =
+          'Failed to load publications data.';
+        console.error('Error loading publications:', err);
       });
-
-      container.appendChild(ul);
-    });
-  })
-  .catch(() => {
-    document.getElementById('publications-container').textContent = 'Failed to load publications data.';
-  });
   </script>
 </body>
 </html>
