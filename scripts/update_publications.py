@@ -1,3 +1,4 @@
+pip install google-search-results
 import os
 import json
 import requests
