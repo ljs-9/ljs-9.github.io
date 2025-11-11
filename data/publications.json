@@ -1,11 +1,12 @@
 [
   {
-    "year": 2025,
-    "authors": "Li, Shun., & Liu, Yang.",
-    "title": "Geopolitical risk and U.S. stock market volatility: Evidence from the U.S.–China Tension Index",
-    "journal": "Applied Economics Letters",
-    "pages": "1–7",
-    "doi": "https://doi.org/10.1080/13504851.2025.2534501",
-    "pdf": "papers/Geopolitical_risk_and_US_stock_market_volatility.pdf"
-  } 
+    "title": "Sample Title",
+    "authors": "Li Jiushun, et al.",
+    "year": "2024",
+    "journal": "Journal of Financial Studies",
+    "pages": "1-20",
+    "citations": 0,
+    "doi": "",
+    "pdf": ""
+  }
 ]
