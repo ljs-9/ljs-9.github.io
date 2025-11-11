@@ -3,16 +3,17 @@ import json
 import requests
 from serpapi import GoogleSearch
 
-# ========== 配置 ==========
+# ================= 配置 =================
 GOOGLE_SCHOLAR_ID = "UdIP7WoAAAAJ"
-SERPAPI_KEY = os.getenv("SERPAPI_KEY")
+SERPAPI_KEY = os.getenv("SERPAPI_KEY")  # GitHub Secret
 
 if not SERPAPI_KEY:
     raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
 
 DATA_PATH = "data/publications.json"
+PDF_FOLDER = "papers"  # 本地 PDF 文件夹
 
-# ========== Step 1. 读取旧数据 ==========
+# ================= 读取旧数据 =================
 if os.path.exists(DATA_PATH):
     try:
         with open(DATA_PATH, "r", encoding="utf-8") as f:
@@ -24,9 +25,8 @@ else:
 
 old_map = {item["title"]: item for item in old_data}
 
-# ========== Step 2. 从 SerpApi 获取最新数据 ==========
+# ================= 从 Google Scholar 获取数据 =================
 print("🔍 Fetching Google Scholar data...")
-
 search = GoogleSearch({
     "engine": "google_scholar_author",
     "author_id": GOOGLE_SCHOLAR_ID,
@@ -40,7 +40,7 @@ if "articles" not in results:
 
 articles = results["articles"]
 
-# ========== Step 3. CrossRef 自动匹配 DOI ==========
+# ================= CrossRef 获取 DOI =================
 def fetch_doi(title):
     """使用 CrossRef API 自动查找 DOI"""
     url = "https://api.crossref.org/works"
@@ -55,7 +55,7 @@ def fetch_doi(title):
         return ""
     return ""
 
-# ========== Step 4. 合并并生成新数据 ==========
+# ================= 合并数据 =================
 new_data = []
 
 for art in articles:
@@ -68,11 +68,14 @@ for art in articles:
 
     old_entry = old_map.get(title, {})
     old_pdf = old_entry.get("pdf", "")
-    
-    # 自动抓 DOI（如果旧的 DOI 没有）
+
+    # 自动抓 DOI，如果旧的没有
     doi = old_entry.get("doi", "")
     if not doi:
         doi = fetch_doi(title)
+
+    # PDF 文件路径优先保留旧的
+    pdf_path = old_pdf or f"{PDF_FOLDER}/{title.replace(' ', '_')}.pdf"
 
     new_data.append({
         "title": title,
@@ -82,13 +85,13 @@ for art in articles:
         "pages": pages,
         "citations": citations,
         "doi": f"https://doi.org/{doi}" if doi else "",
-        "pdf": old_pdf or art.get("link", "")
+        "pdf": pdf_path
     })
 
-# ========== Step 5. 写回文件 ==========
+# ================= 写回 JSON =================
 os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
 with open(DATA_PATH, "w", encoding="utf-8") as f:
     json.dump(new_data, f, ensure_ascii=False, indent=2)
 
 print(f"✅ Successfully updated {len(new_data)} publications.")
-print("📚 DOI auto-fetched, PDF links preserved.")
+print(f"📚 DOI auto-fetched, PDF links preserved in '{PDF_FOLDER}/'.")
