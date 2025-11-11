@@ -66,6 +66,20 @@
       padding-bottom: 5px;
       margin-top: 40px;
     }
+    h3 {
+      margin-top: 20px;
+      color: #333;
+      border-left: 4px solid #0077cc;
+      padding-left: 10px;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      margin-bottom: 12px;
+      line-height: 1.5em;
+    }
     .lang-toggle {
       position: fixed;
       top: 10px;
@@ -156,18 +170,24 @@
     }
     setLang('en');
 
-    // 动态加载 JSON 并显示引用次数
+    // === Publications Section ===
     fetch('data/publications.json')
       .then(res => res.json())
       .then(data => {
         const container = document.getElementById('publications-container');
         container.innerHTML = '';
 
+        if (!Array.isArray(data) || data.length === 0) {
+          container.textContent = 'No publication data available.';
+          return;
+        }
+
         const grouped = data.reduce((acc, pub) => {
-          (acc[pub.year] = acc[pub.year] || []).push(pub);
+          const year = pub.year || "Unknown";
+          (acc[year] = acc[year] || []).push(pub);
           return acc;
         }, {});
-        const years = Object.keys(grouped).sort((a,b) => b - a);
+        const years = Object.keys(grouped).sort((a, b) => b - a);
 
         years.forEach(year => {
           const yearDiv = document.createElement('div');
@@ -179,19 +199,23 @@
           grouped[year].forEach(pub => {
             const li = document.createElement('li');
             const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
+            const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : '';
+            const pdfLink = pub.pdf ? `<a href="${pub.pdf}" target="_blank">📄 PDF</a>` : '';
+
             li.innerHTML = `
               <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
-              <em>${pub.journal}</em>, ${pub.pages}.
-              <a href="${pub.doi}" target="_blank">🔗 DOI</a>
-              | <a href="${pub.pdf}" target="_blank">📄 PDF</a>
-              ${citationText}</p>`;
+              <em>${pub.journal}</em> ${pub.pages || ''}.
+              ${doiLink} ${pdfLink} ${citationText}</p>
+            `;
             ul.appendChild(li);
           });
           container.appendChild(ul);
         });
       })
-      .catch(() => {
-        document.getElementById('publications-container').textContent = 'Failed to load publications data.';
+      .catch(err => {
+        document.getElementById('publications-container').textContent =
+          'Failed to load publications data.';
+        console.error('Error loading publications:', err);
       });
   </script>
 </body>
