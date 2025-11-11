@@ -1,48 +1,94 @@
+import os
 import json
 import requests
-from datetime import datetime
-import os
+from serpapi import GoogleSearch
 
-# Google Scholar ID
-SCHOLAR_ID = "UdIP7WoAAAAJ"
+# ========== 配置 ==========
+GOOGLE_SCHOLAR_ID = "UdIP7WoAAAAJ"
+SERPAPI_KEY = os.getenv("SERPAPI_KEY")
 
-# 从 GitHub Secret 读取 SerpAPI key
-API_KEY = os.getenv("SERPAPI_KEY")
-
-if not API_KEY:
+if not SERPAPI_KEY:
     raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
 
-URL = f"https://serpapi.com/search.json?engine=google_scholar_author&author_id={SCHOLAR_ID}&api_key={API_KEY}"
+DATA_PATH = "data/publications.json"
 
-print("🔍 Fetching publications from SerpAPI...")
+# ========== Step 1. 读取旧数据 ==========
+if os.path.exists(DATA_PATH):
+    try:
+        with open(DATA_PATH, "r", encoding="utf-8") as f:
+            old_data = json.load(f)
+    except json.JSONDecodeError:
+        old_data = []
+else:
+    old_data = []
 
-r = requests.get(URL)
-if r.status_code != 200:
-    raise Exception(f"❌ API request failed: {r.status_code} - {r.text}")
+old_map = {item["title"]: item for item in old_data}
 
-data = r.json()
-articles = data.get("articles", [])
+# ========== Step 2. 从 SerpApi 获取最新数据 ==========
+print("🔍 Fetching Google Scholar data...")
 
-publications = []
-for pub in articles:
-    publications.append({
-        "title": pub.get("title", ""),
-        "authors": pub.get("authors", ""),
-        "year": pub.get("year", ""),
-        "journal": pub.get("publication", ""),
-        "pages": "",
-        "citations": pub.get("cited_by", {}).get("value", 0),
-        "doi": "",
-        "pdf": pub.get("link", "")
+search = GoogleSearch({
+    "engine": "google_scholar_author",
+    "author_id": GOOGLE_SCHOLAR_ID,
+    "api_key": SERPAPI_KEY,
+    "num": "100"
+})
+results = search.get_dict()
+
+if "articles" not in results:
+    raise RuntimeError("❌ Failed to fetch from Google Scholar API.")
+
+articles = results["articles"]
+
+# ========== Step 3. CrossRef 自动匹配 DOI ==========
+def fetch_doi(title):
+    """使用 CrossRef API 自动查找 DOI"""
+    url = "https://api.crossref.org/works"
+    params = {"query.title": title, "rows": 1}
+    try:
+        res = requests.get(url, params=params, timeout=10)
+        data = res.json()
+        items = data.get("message", {}).get("items", [])
+        if items:
+            return items[0].get("DOI", "")
+    except Exception:
+        return ""
+    return ""
+
+# ========== Step 4. 合并并生成新数据 ==========
+new_data = []
+
+for art in articles:
+    title = art.get("title", "").strip()
+    year = art.get("year", "")
+    authors = art.get("authors", "")
+    journal = art.get("publication", "")
+    pages = art.get("pages", "")
+    citations = art.get("cited_by", {}).get("value", 0)
+
+    old_entry = old_map.get(title, {})
+    old_pdf = old_entry.get("pdf", "")
+    
+    # 自动抓 DOI（如果旧的 DOI 没有）
+    doi = old_entry.get("doi", "")
+    if not doi:
+        doi = fetch_doi(title)
+
+    new_data.append({
+        "title": title,
+        "authors": authors,
+        "year": year,
+        "journal": journal,
+        "pages": pages,
+        "citations": citations,
+        "doi": f"https://doi.org/{doi}" if doi else "",
+        "pdf": old_pdf or art.get("link", "")
     })
 
-# 输出路径
-output_path = "data/publications.json"
-os.makedirs(os.path.dirname(output_path), exist_ok=True)
+# ========== Step 5. 写回文件 ==========
+os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
+with open(DATA_PATH, "w", encoding="utf-8") as f:
+    json.dump(new_data, f, ensure_ascii=False, indent=2)
 
-# 保存为 JSON 文件
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(publications, f, ensure_ascii=False, indent=2)
-
-print(f"✅ Updated {len(publications)} publications.")
-print(f"📅 Last updated: {datetime.now()}")
+print(f"✅ Successfully updated {len(new_data)} publications.")
+print("📚 DOI auto-fetched, PDF links preserved.")
