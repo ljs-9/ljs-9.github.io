@@ -2,7 +2,7 @@ import json
 import scholarly
 from datetime import datetime
 
-SCHOLAR_ID = "UdIP7WoAAAAJ"  # 你的 Google Scholar ID
+SCHOLAR_ID = "UdIP7WoAAAAJ&hl"  # 你的 Google Scholar ID
 
 print("🔍 Fetching publications from Google Scholar...")
 
