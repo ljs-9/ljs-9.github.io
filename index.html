@@ -56,10 +56,6 @@
     .content {
       flex: 1;
       padding: 40px;
-      display: flex;
-      flex-direction: column;  /* ✅ 新增：让 footer 能被推到底 */
-      min-height: 100vh;       /* ✅ 新增：保证内容区满屏高度 */
-      box-sizing: border-box;
     }
     section {
       max-width: 800px;
@@ -97,17 +93,13 @@
       margin: 0 5px;
       color: #0077cc;
     }
-
-    /* ✅ 修改：footer 样式，让它自动贴底 */
     .contact {
       border-top: 1px solid #ddd;
-      padding: 15px 0;
+      padding: 20px;
       text-align: center;
-      font-size: 0.9em;
-      color: #666;
-      margin-top: auto;  /* ✅ 核心：让 footer 贴底 */
+      font-size: 0.95em;
+      margin-top: 60px;
     }
-
     .cn { display: none; }
     @media (max-width: 768px) {
       body { flex-direction: column; }
@@ -163,3 +155,68 @@
       &copy; 2025 Shun Li. All rights reserved.
     </footer>
   </div>
+
+  <script>
+    function setLang(lang) {
+      const en = document.querySelectorAll('.en');
+      const cn = document.querySelectorAll('.cn');
+      if (lang === 'en') {
+        en.forEach(e => e.style.display = 'block');
+        cn.forEach(c => c.style.display = 'none');
+      } else {
+        cn.forEach(c => c.style.display = 'block');
+        en.forEach(e => e.style.display = 'none');
+      }
+    }
+    setLang('en');
+
+    // === Publications Section ===
+    fetch('data/publications.json')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('publications-container');
+        container.innerHTML = '';
+
+        if (!Array.isArray(data) || data.length === 0) {
+          container.textContent = 'No publication data available.';
+          return;
+        }
+
+        const grouped = data.reduce((acc, pub) => {
+          const year = pub.year || "Unknown";
+          (acc[year] = acc[year] || []).push(pub);
+          return acc;
+        }, {});
+        const years = Object.keys(grouped).sort((a, b) => b - a);
+
+        years.forEach(year => {
+          const yearDiv = document.createElement('div');
+          yearDiv.className = 'pub-year';
+          yearDiv.innerHTML = `<h3>${year}</h3>`;
+          container.appendChild(yearDiv);
+
+          const ul = document.createElement('ul');
+          grouped[year].forEach(pub => {
+            const li = document.createElement('li');
+            const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
+            const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : '';
+            const pdfLink = pub.pdf ? `<a href="${pub.pdf}" target="_blank">📄 PDF</a>` : '';
+
+            li.innerHTML = `
+              <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
+              <em>${pub.journal}</em> ${pub.pages || ''}.
+              ${doiLink} ${pdfLink} ${citationText}</p>
+            `;
+            ul.appendChild(li);
+          });
+          container.appendChild(ul);
+        });
+      })
+      .catch(err => {
+        document.getElementById('publications-container').textContent =
+          'Failed to load publications data.';
+        console.error('Error loading publications:', err);
+      });
+  </script>
+</body>
+</html>
