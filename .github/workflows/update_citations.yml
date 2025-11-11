@@ -2,8 +2,11 @@ name: Update Google Scholar Citations
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # 每天 UTC 时间 00:00 自动运行（北京时间 08:00）
-  workflow_dispatch:       # 支持手动触发
+    - cron: '0 0 * * *'   # 每天 UTC 00:00（北京时间 08:00）
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update:
@@ -19,9 +22,11 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install scholarly
+        run: pip install requests
 
       - name: Run update script
+        env:
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python scripts/update_publications.py
 
       - name: Commit and push changes
