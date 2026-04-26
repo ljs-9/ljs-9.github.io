@@ -163,52 +163,58 @@
     setLang('en');
 
     // === Publications Section ===
-    fetch('data/publications.json')
-      .then(res => res.json())
-      .then(data => {
-        const container = document.getElementById('publications-container');
-        container.innerHTML = '';
+    fetch('./data/publications.json')
+  .then(res => {
+    if (!res.ok) {
+      throw new Error('HTTP error ' + res.status);
+    }
+    return res.json();
+  })
+  .then(data => {
+    const container = document.getElementById('publications-container');
+    container.innerHTML = '';
 
-        if (!Array.isArray(data) || data.length === 0) {
-          container.textContent = 'No publication data available.';
-          return;
-        }
+    if (!Array.isArray(data) || data.length === 0) {
+      container.textContent = 'No publication data available.';
+      return;
+    }
 
-        const grouped = data.reduce((acc, pub) => {
-          const year = pub.year || "Unknown";
-          (acc[year] = acc[year] || []).push(pub);
-          return acc;
-        }, {});
-        const years = Object.keys(grouped).sort((a, b) => b - a);
+    const grouped = data.reduce((acc, pub) => {
+      const year = pub.year || "Unknown";
+      (acc[year] = acc[year] || []).push(pub);
+      return acc;
+    }, {});
 
-        years.forEach(year => {
-          const yearDiv = document.createElement('div');
-          yearDiv.className = 'pub-year';
-          yearDiv.innerHTML = `<h3>${year}</h3>`;
-          container.appendChild(yearDiv);
+    const years = Object.keys(grouped).sort((a, b) => b - a);
 
-          const ul = document.createElement('ul');
-          grouped[year].forEach(pub => {
-            const li = document.createElement('li');
-            const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
-            const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : '';
-            const pdfLink = pub.pdf ? `<a href="${pub.pdf}" target="_blank">📄 PDF</a>` : '';
+    years.forEach(year => {
+      const yearDiv = document.createElement('div');
+      yearDiv.innerHTML = `<h3>${year}</h3>`;
+      container.appendChild(yearDiv);
 
-            li.innerHTML = `
-              <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
-              <em>${pub.journal}</em> ${pub.pages || ''}.
-              ${doiLink} ${pdfLink} ${citationText}</p>
-            `;
-            ul.appendChild(li);
-          });
-          container.appendChild(ul);
-        });
-      })
-      .catch(err => {
-        document.getElementById('publications-container').textContent =
-          'Failed to load publications data.';
-        console.error('Error loading publications:', err);
+      const ul = document.createElement('ul');
+
+      grouped[year].forEach(pub => {
+        const li = document.createElement('li');
+
+        const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
+        const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : '';
+        const pdfLink = pub.pdf ? `<a href="${pub.pdf}" target="_blank">📄 PDF</a>` : '';
+
+        li.innerHTML = `
+          <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
+          <em>${pub.journal}</em> ${pub.pages || ''}.
+          ${doiLink} ${pdfLink} ${citationText}</p>
+        `;
+
+        ul.appendChild(li);
       });
-  </script>
-</body>
-</html>
+
+      container.appendChild(ul);
+    });
+  })
+  .catch(err => {
+    document.getElementById('publications-container').textContent =
+      'Failed to load publications data.';
+    console.error('Error loading publications:', err);
+  });
