@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # 提前适配 Node 24
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -22,29 +25,45 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install --upgrade pip
+          pip install requests
 
       - name: Run update script
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python scripts/update_publications.py
 
+      # 👉 保存旧文件（用于对比）
+      - name: Backup old file
+        run: |
+          if [ -f data/publications.json ]; then
+            cp data/publications.json data/publications_old.json
+          fi
+
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add data/publications.json || true
-          
-          # 关键：只有有变更才 commit
+
           if git diff --cached --quiet; then
-            echo "No changes to commit"
+            echo "No changes detected"
+
             if [ -f data/publications.json ]; then
-              echo "Current publications.json content:"
-              cat data/publications.json
+              echo "Current publications.json (first 50 lines):"
+              head -n 50 data/publications.json
             else
               echo "publications.json does not exist"
             fi
+
           else
+            echo "Changes detected, committing..."
+
             git commit -m "Auto update Google Scholar citations [$(date '+%Y-%m-%d')]"
             git push
+
+            echo "Updated content preview:"
+            head -n 50 data/publications.json
           fi
