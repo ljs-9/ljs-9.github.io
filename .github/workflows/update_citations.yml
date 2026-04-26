@@ -33,10 +33,17 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/publications.json
+          git add data/publications.json || true
+          
           # 关键：只有有变更才 commit
           if git diff --cached --quiet; then
             echo "No changes to commit"
+            if [ -f data/publications.json ]; then
+              echo "Current publications.json content:"
+              cat data/publications.json
+            else
+              echo "publications.json does not exist"
+            fi
           else
             git commit -m "Auto update Google Scholar citations [$(date '+%Y-%m-%d')]"
             git push
