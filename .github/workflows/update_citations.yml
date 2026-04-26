@@ -34,5 +34,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/publications.json
-          git commit -m "Auto update Google Scholar citations [$(date '+%Y-%m-%d')]"
-          git push
+          # 关键：只有有变更才 commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Auto update Google Scholar citations [$(date '+%Y-%m-%d')]"
+            git push
+          fi
