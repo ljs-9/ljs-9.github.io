@@ -1,117 +1,222 @@
 import json
-import requests
-from datetime import datetime
 import os
-import time
 import re
+import time
+from datetime import datetime
 
-# Google Scholar ID
+import requests
+
+
+# =========================
+# Basic configuration
+# =========================
+
 SCHOLAR_ID = "UdIP7WoAAAAJ"
-
-# 从 GitHub Secret 读取 SerpAPI key
 API_KEY = os.getenv("SERPAPI_KEY")
-if not API_KEY:
-    raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
 
-URL = f"https://serpapi.com/search.json?engine=google_scholar_author&author_id={SCHOLAR_ID}&api_key={API_KEY}"
+OUTPUT_PATH = "data/publications.json"
+TEMP_PATH = "data/publications.tmp.json"
 
-print("🔍 Fetching publications from SerpAPI...")
-r = requests.get(URL)
-if r.status_code != 200:
-    raise Exception(f"❌ API request failed: {r.status_code} - {r.text}")
+SERPAPI_URL = (
+    "https://serpapi.com/search.json"
+    f"?engine=google_scholar_author&author_id={SCHOLAR_ID}&api_key={API_KEY}"
+)
 
-data = r.json()
-articles = data.get("articles", [])
 
-# 输出路径
-output_path = "data/publications.json"
-os.makedirs(os.path.dirname(output_path), exist_ok=True)
+# =========================
+# Utility functions
+# =========================
 
-# 加载旧数据（缓存）
-if os.path.exists(output_path):
-    with open(output_path, "r", encoding="utf-8") as f:
-        old_data = {pub["title"]: pub for pub in json.load(f)}
-else:
-    old_data = {}
-
-def clean_text(s: str) -> str:
-    """清理字符串中的特殊符号"""
-    return re.sub(r"[^A-Za-z0-9\s\-&]", "", s).strip()
-
-def fetch_doi_from_crossref(title, authors="", year=""):
-    """通过 CrossRef 精准匹配 DOI"""
-    title_clean = clean_text(title)
-    author_first = authors.split(",")[0] if authors else ""
-
-    # 第一次精确匹配：title + author + year
-    query = f"{title_clean} {author_first} {year}".strip()
-    url = f"https://api.crossref.org/works?query={requests.utils.quote(query)}&rows=1"
+def load_existing_publications(path: str) -> list:
+    """Load existing publications from JSON. Return an empty list if unavailable."""
+    if not os.path.exists(path):
+        return []
 
     try:
-        res = requests.get(url, timeout=10)
-        if res.status_code != 200:
-            print(f"⚠️ CrossRef request failed ({res.status_code}) for: {title}")
-            return ""
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
-        items = res.json().get("message", {}).get("items", [])
-        if items:
+        if isinstance(data, list):
+            return data
+
+        print("⚠️ Existing publications.json is not a list. It will not be used as cache.")
+        return []
+
+    except Exception as e:
+        print(f"⚠️ Failed to load existing publications.json: {e}")
+        return []
+
+
+def build_old_data_map(old_publications: list) -> dict:
+    """Build a title-based cache for DOI and other existing metadata."""
+    old_data = {}
+
+    for pub in old_publications:
+        title = str(pub.get("title", "")).strip()
+        if title:
+            old_data[title] = pub
+
+    return old_data
+
+
+def clean_text(text: str) -> str:
+    """Clean text for CrossRef queries."""
+    if not text:
+        return ""
+
+    return re.sub(r"[^A-Za-z0-9\s\-&:]", "", str(text)).strip()
+
+
+def fetch_doi_from_crossref(title: str, authors: str = "", year: str = "") -> str:
+    """Fetch DOI from CrossRef using title, author, and year."""
+    title_clean = clean_text(title)
+    author_first = authors.split(",")[0].strip() if authors else ""
+
+    if not title_clean:
+        return ""
+
+    queries = [
+        f"{title_clean} {author_first} {year}".strip(),
+        title_clean,
+    ]
+
+    for query in queries:
+        try:
+            url = (
+                "https://api.crossref.org/works"
+                f"?query={requests.utils.quote(query)}&rows=1"
+            )
+
+            response = requests.get(url, timeout=15)
+
+            if response.status_code != 200:
+                print(f"⚠️ CrossRef request failed ({response.status_code}) for: {title}")
+                continue
+
+            items = response.json().get("message", {}).get("items", [])
+
+            if not items:
+                continue
+
             item = items[0]
             doi = item.get("DOI", "")
             found_title = item.get("title", [""])[0]
-            print(f"    ✅ Found DOI: {doi}")
-            print(f"       ↳ Matched title: {found_title}")
-            return doi
 
-        # 第二次尝试：仅用标题模糊匹配
-        fallback_url = f"https://api.crossref.org/works?query.title={requests.utils.quote(title_clean)}&rows=1"
-        res2 = requests.get(fallback_url, timeout=10)
-        items2 = res2.json().get("message", {}).get("items", [])
-        if items2:
-            item = items2[0]
-            doi = item.get("DOI", "")
-            found_title = item.get("title", [""])[0]
-            print(f"    ✅ Found DOI (fallback): {doi}")
-            print(f"       ↳ Matched title: {found_title}")
-            return doi
+            if doi:
+                print(f"✅ Found DOI for: {title}")
+                print(f"   DOI: {doi}")
+                print(f"   Matched title: {found_title}")
+                return doi
 
-        print("    ❌ No DOI match found.")
-    except Exception as e:
-        print(f"⚠️ Error while fetching DOI for '{title}': {e}")
+        except Exception as e:
+            print(f"⚠️ Error while fetching DOI for '{title}': {e}")
+
+    print(f"❌ No DOI match found for: {title}")
     return ""
 
-publications = []
-for i, pub in enumerate(articles, start=1):
-    title = pub.get("title", "")
-    authors = pub.get("authors", "")
-    year = str(pub.get("year", ""))
-    journal = pub.get("publication", "")
+
+def fetch_articles_from_serpapi() -> list:
+    """Fetch publications from SerpAPI."""
+    if not API_KEY:
+        raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
+
+    print("Fetching publications from SerpAPI...")
+
+    response = requests.get(SERPAPI_URL, timeout=30)
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"❌ SerpAPI request failed: {response.status_code} - {response.text}"
+        )
+
+    data = response.json()
+    articles = data.get("articles", [])
+
+    if not isinstance(articles, list):
+        raise RuntimeError("❌ SerpAPI returned an invalid articles field.")
+
+    if len(articles) == 0:
+        raise RuntimeError(
+            "❌ SerpAPI returned zero articles. Existing publications.json will be kept unchanged."
+        )
+
+    print(f"✅ Fetched {len(articles)} articles from SerpAPI.")
+    return articles
+
+
+def normalise_publication(pub: dict, old_data: dict, index: int, total: int) -> dict:
+    """Convert SerpAPI publication data into the website JSON format."""
+    title = str(pub.get("title", "")).strip()
+    authors = str(pub.get("authors", "")).strip()
+    year = str(pub.get("year", "")).strip()
+    journal = str(pub.get("publication", "")).strip()
     citations = pub.get("cited_by", {}).get("value", 0)
-    pdf = pub.get("link", "")
+    link = str(pub.get("link", "")).strip()
 
-    # 使用缓存中的 DOI
-    doi = ""
-    if title in old_data and old_data[title].get("doi"):
-        doi = old_data[title]["doi"]
-        print(f"🟢 [{i}/{len(articles)}] Cached DOI found for: {title}")
+    if citations is None:
+        citations = 0
+
+    old_pub = old_data.get(title, {})
+    old_doi = str(old_pub.get("doi", "")).strip()
+
+    if old_doi:
+        doi = old_doi
+        print(f"[{index}/{total}] Cached DOI found for: {title}")
     else:
-        print(f"🔹 [{i}/{len(articles)}] Fetching DOI for: {title}")
+        print(f"[{index}/{total}] Fetching DOI for: {title}")
         doi = fetch_doi_from_crossref(title, authors, year)
-        time.sleep(1.5)  # 防止 CrossRef 限流
+        time.sleep(1.5)
 
-    publications.append({
+    return {
         "title": title,
         "authors": authors,
         "year": year,
         "journal": journal,
-        "pages": "",
+        "pages": str(old_pub.get("pages", "")).strip(),
         "citations": citations,
         "doi": doi,
-        "pdf": pdf
-    })
+        "pdf": link,
+    }
 
-# 保存 JSON 文件
-with open(output_path, "w", encoding="utf-8") as f:
-    json.dump(publications, f, ensure_ascii=False, indent=2)
 
-print(f"\n✅ Updated {len(publications)} publications (DOI included where available).")
-print(f"📅 Last updated: {datetime.now()}")
+def save_publications_safely(publications: list, output_path: str, temp_path: str) -> None:
+    """Save publications atomically. Never overwrite with empty data."""
+    if not isinstance(publications, list) or len(publications) == 0:
+        raise RuntimeError(
+            "❌ No valid publications generated. Existing publications.json will be kept unchanged."
+        )
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    with open(temp_path, "w", encoding="utf-8") as f:
+        json.dump(publications, f, ensure_ascii=False, indent=2)
+
+    os.replace(temp_path, output_path)
+
+    print(f"\n✅ Updated {len(publications)} publications.")
+    print(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
+
+# =========================
+# Main process
+# =========================
+
+def main():
+    old_publications = load_existing_publications(OUTPUT_PATH)
+    old_data = build_old_data_map(old_publications)
+
+    articles = fetch_articles_from_serpapi()
+
+    publications = []
+
+    for i, pub in enumerate(articles, start=1):
+        normalised = normalise_publication(pub, old_data, i, len(articles))
+
+        if normalised["title"]:
+            publications.append(normalised)
+
+    save_publications_safely(publications, OUTPUT_PATH, TEMP_PATH)
+
+
+if __name__ == "__main__":
+    main()
