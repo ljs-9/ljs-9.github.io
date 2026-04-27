@@ -163,48 +163,83 @@
     setLang('en');
 
     // === Publications Section ===
-    fetch('./data/publications.json')
-  .then(res => {
-    if (!res.ok) {
-      throw new Error('HTTP error ' + res.status);
-    }
-    return res.json();
-  })
-  .then(data => {
-    const container = document.getElementById('publications-container');
-    container.innerHTML = '';
+   <script>
+  // === Publications Section ===
+  const container = document.getElementById('publications-container');
 
+  function escapeHTML(str = '') {
+    return String(str)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function formatDOI(doi) {
+    if (!doi) return '';
+    const doiUrl = doi.startsWith('http') ? doi : `https://doi.org/${doi}`;
+    return `<a href="${escapeHTML(doiUrl)}" target="_blank" rel="noopener noreferrer">DOI</a>`;
+  }
+
+  function formatScholarLink(link) {
+    if (!link) return '';
+    return `<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">Google Scholar</a>`;
+  }
+
+  function renderPublications(data) {
     if (!Array.isArray(data) || data.length === 0) {
-      container.textContent = 'No publication data available.';
+      container.innerHTML = '<p>Publication information is currently unavailable. Please visit Google Scholar for the latest list.</p>';
       return;
     }
 
+    container.innerHTML = '';
+
     const grouped = data.reduce((acc, pub) => {
-      const year = pub.year || "Unknown";
-      (acc[year] = acc[year] || []).push(pub);
+      const year = pub.year || 'Forthcoming';
+      if (!acc[year]) acc[year] = [];
+      acc[year].push(pub);
       return acc;
     }, {});
 
-    const years = Object.keys(grouped).sort((a, b) => b - a);
+    const years = Object.keys(grouped).sort((a, b) => {
+      const ay = parseInt(a, 10);
+      const by = parseInt(b, 10);
+      if (isNaN(ay)) return 1;
+      if (isNaN(by)) return -1;
+      return by - ay;
+    });
 
     years.forEach(year => {
-      const yearDiv = document.createElement('div');
-      yearDiv.innerHTML = `<h3>${year}</h3>`;
-      container.appendChild(yearDiv);
+      const yearTitle = document.createElement('h3');
+      yearTitle.textContent = year;
+      container.appendChild(yearTitle);
 
       const ul = document.createElement('ul');
 
       grouped[year].forEach(pub => {
         const li = document.createElement('li');
 
-        const citationText = pub.citations ? ` | 📚 Citations: ${pub.citations}` : '';
-        const doiLink = pub.doi ? `<a href="${pub.doi}" target="_blank">🔗 DOI</a>` : '';
-        const pdfLink = pub.pdf ? `<a href="${pub.pdf}" target="_blank">📄 PDF</a>` : '';
+        const authors = escapeHTML(pub.authors || '');
+        const title = escapeHTML(pub.title || '');
+        const journal = escapeHTML(pub.journal || '');
+        const pages = pub.pages ? `, ${escapeHTML(pub.pages)}` : '';
+        const citations = Number.isFinite(pub.citations) && pub.citations > 0
+          ? ` | Citations: ${pub.citations}`
+          : '';
+
+        const links = [formatDOI(pub.doi), formatScholarLink(pub.pdf)]
+          .filter(Boolean)
+          .join(' | ');
 
         li.innerHTML = `
-          <p>${pub.authors} (${pub.year}). <strong>${pub.title}</strong>.
-          <em>${pub.journal}</em> ${pub.pages || ''}.
-          ${doiLink} ${pdfLink} ${citationText}</p>
+          <p>
+            ${authors} (${escapeHTML(pub.year || '')}).
+            <strong>${title}</strong>.
+            <em>${journal}</em>${pages}.
+            ${links ? `<br>${links}` : ''}
+            ${citations}
+          </p>
         `;
 
         ul.appendChild(li);
@@ -212,9 +247,16 @@
 
       container.appendChild(ul);
     });
-  })
-  .catch(err => {
-    document.getElementById('publications-container').textContent =
-      'Failed to load publications data.';
-    console.error('Error loading publications:', err);
-  });
+  }
+
+  fetch('./data/publications.json', { cache: 'no-store' })
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+      return res.json();
+    })
+    .then(renderPublications)
+    .catch(err => {
+      console.error('Error loading publications:', err);
+      container.innerHTML = '<p>Publication information is temporarily unavailable. Please visit Google Scholar for the latest list.</p>';
+    });
+</script>
