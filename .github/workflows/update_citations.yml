@@ -1,15 +1,12 @@
-name: Update Google Scholar Citations
+name: Update Google Scholar Publications
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # 每天 UTC 00:00（北京时间 08:00）
+    - cron: '0 0 * * *'  # Daily at UTC 00:00, Beijing time 08:00
   workflow_dispatch:
 
 permissions:
   contents: write
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # 提前适配 Node 24
 
 jobs:
   update:
@@ -18,6 +15,15 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Backup existing publications
+        run: |
+          if [ -f data/publications.json ]; then
+            cp data/publications.json data/publications.backup.json
+            echo "Existing publications.json backed up."
+          else
+            echo "No existing publications.json found."
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,36 +40,38 @@ jobs:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python scripts/update_publications.py
 
-      # 👉 保存旧文件（用于对比）
-      - name: Backup old file
+      - name: Validate publications file
         run: |
-          if [ -f data/publications.json ]; then
-            cp data/publications.json data/publications_old.json
-          fi
+          python - <<'PY'
+          import json
+          import os
+
+          path = "data/publications.json"
+
+          if not os.path.exists(path):
+              raise SystemExit("data/publications.json does not exist.")
+
+          with open(path, "r", encoding="utf-8") as f:
+              data = json.load(f)
+
+          if not isinstance(data, list) or len(data) == 0:
+              raise SystemExit("data/publications.json is empty or invalid.")
+
+          print(f"Validated publications.json with {len(data)} publications.")
+          PY
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add data/publications.json || true
+          git add data/publications.json
 
           if git diff --cached --quiet; then
-            echo "No changes detected"
-
-            if [ -f data/publications.json ]; then
-              echo "Current publications.json (first 50 lines):"
-              head -n 50 data/publications.json
-            else
-              echo "publications.json does not exist"
-            fi
-
+            echo "No publication changes detected."
           else
-            echo "Changes detected, committing..."
-
-            git commit -m "Auto update Google Scholar citations [$(date '+%Y-%m-%d')]"
+            git commit -m "Auto update Google Scholar publications [$(date '+%Y-%m-%d')]"
             git push
-
-            echo "Updated content preview:"
-            head -n 50 data/publications.json
+            echo "Updated publications.json:"
+            head -n 80 data/publications.json
           fi
