@@ -412,9 +412,6 @@
       return `papers/${cleanPDF}`;
     }
 
-    function isScholarLink(url) {
-      return typeof url === "string" && url.includes("scholar.google.");
-    }
 
     function isPDFLink(url) {
       return typeof url === "string" && url.toLowerCase().endsWith(".pdf");
@@ -437,20 +434,6 @@
         links.push(`
           <a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer">
             <i class="fa-regular fa-file-pdf"></i> PDF
-          </a>
-        `);
-      }
-
-      if (pub.scholar) {
-        links.push(`
-          <a href="${escapeHTML(pub.scholar)}" target="_blank" rel="noopener noreferrer">
-            <i class="ai ai-google-scholar"></i> Google Scholar
-          </a>
-        `);
-      } else if (pub.pdf && isScholarLink(pub.pdf)) {
-        links.push(`
-          <a href="${escapeHTML(pub.pdf)}" target="_blank" rel="noopener noreferrer">
-            <i class="ai ai-google-scholar"></i> Google Scholar
           </a>
         `);
       }
