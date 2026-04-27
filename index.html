@@ -224,6 +224,9 @@
 
     .publication-links a {
       margin-right: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
 
     .status-message {
@@ -342,7 +345,7 @@
       </section>
 
       <section id="publications">
-        <h2>Publications(SSCI)</h2>
+        <h2>Selected Publications</h2>
 
         <div id="publications-container">
           <p class="status-message">Loading publications...</p>
@@ -386,6 +389,29 @@
       return `https://doi.org/${cleanDOI}`;
     }
 
+    function normalisePDFPath(pdf) {
+      if (!pdf) return "";
+
+      const cleanPDF = String(pdf).trim();
+
+      if (!cleanPDF) return "";
+
+      if (
+        cleanPDF.startsWith("http://") ||
+        cleanPDF.startsWith("https://") ||
+        cleanPDF.startsWith("./") ||
+        cleanPDF.startsWith("/")
+      ) {
+        return cleanPDF;
+      }
+
+      if (cleanPDF.startsWith("papers/")) {
+        return cleanPDF;
+      }
+
+      return `papers/${cleanPDF}`;
+    }
+
     function isScholarLink(url) {
       return typeof url === "string" && url.includes("scholar.google.");
     }
@@ -399,20 +425,34 @@
 
       const doiURL = normaliseDOI(pub.doi);
       if (doiURL) {
-        links.push(`<a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer">DOI</a>`);
+        links.push(`
+          <a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-solid fa-link"></i> DOI
+          </a>
+        `);
       }
 
-      if (pub.pdf) {
-        const safeURL = escapeHTML(pub.pdf);
-        let label = "Link";
+      const pdfURL = normalisePDFPath(pub.pdf);
+      if (pdfURL && isPDFLink(pdfURL)) {
+        links.push(`
+          <a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-file-pdf"></i> PDF
+          </a>
+        `);
+      }
 
-        if (isPDFLink(pub.pdf)) {
-          label = "PDF";
-        } else if (isScholarLink(pub.pdf)) {
-          label = "Google Scholar";
-        }
-
-        links.push(`<a href="${safeURL}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+      if (pub.scholar) {
+        links.push(`
+          <a href="${escapeHTML(pub.scholar)}" target="_blank" rel="noopener noreferrer">
+            <i class="ai ai-google-scholar"></i> Google Scholar
+          </a>
+        `);
+      } else if (pub.pdf && isScholarLink(pub.pdf)) {
+        links.push(`
+          <a href="${escapeHTML(pub.pdf)}" target="_blank" rel="noopener noreferrer">
+            <i class="ai ai-google-scholar"></i> Google Scholar
+          </a>
+        `);
       }
 
       return links.length ? `<div class="publication-links">${links.join("")}</div>` : "";
