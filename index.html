@@ -136,17 +136,22 @@
       text-align: center;
     }
 
-    .email {
-      margin: 14px 0 18px;
+    .email,
+    .address {
+      margin: 14px 0 0;
       color: var(--muted);
       font-size: 0.9rem;
       text-align: center;
       word-break: break-word;
     }
 
+    .address {
+      margin-top: 8px;
+    }
+
     .links {
       width: 100%;
-      margin-top: 8px;
+      margin-top: 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -366,19 +371,23 @@
 
 <body>
   <aside class="sidebar">
-    <img class="profile-photo" src="images/li.png" alt="Shun Li profile photo" />
+    <img id="profile-photo" class="profile-photo" src="images/li.png" alt="Shun Li profile photo" />
 
-    <h1>Shun Li <br />(李顺)</h1>
+    <h1 id="profile-name">Shun Li <br />(李顺)</h1>
 
-    <p class="position">Ph.D. in Financial Management</p>
-    <p class="position">School of Business Administration</p>
-    <p class="position">Dankook University, Yongin, Korea</p>
+    <div id="profile-positions">
+      <p class="position">Ph.D. in Financial Management</p>
+      <p class="position">School of Business Administration</p>
+      <p class="position">Dankook University, Yongin, Korea</p>
+    </div>
 
-    <p class="email">
+    <p class="email" id="profile-email">
       <i class="fa-solid fa-envelope"></i>
       Email:
       <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a>
     </p>
+
+    <p class="address" id="profile-address"></p>
 
     <nav class="links" aria-label="Academic profiles">
       <a href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer">
@@ -413,20 +422,16 @@
       <section id="about">
         <h2>About Me</h2>
 
-        <p>
-          My research focuses on financial economics, behavioural finance, asset pricing, and volatility forecasting.
-          I am particularly interested in how geopolitical risk, policy uncertainty, investor sentiment, and macro-financial conditions shape long-term volatility in financial markets.
-        </p>
+        <div id="about-container">
+          <p class="status-message">Loading profile...</p>
+        </div>
       </section>
 
       <section id="research">
         <h2>Research Interests</h2>
 
-        <ul class="research-list">
-          <li>Financial economics and asset pricing</li>
-          <li>Behavioural finance and investor sentiment</li>
-          <li>Volatility modelling and forecasting</li>
-          <li>Geopolitical risk, policy uncertainty, and macro-financial interactions</li>
+        <ul class="research-list" id="research-list">
+          <li class="status-message">Loading research interests...</li>
         </ul>
       </section>
 
@@ -445,8 +450,17 @@
   </div>
 
   <script>
+    const PROFILE_URL = "./data/profile.json";
     const PUBLICATIONS_URL = "./data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
+
+    const profilePhoto = document.getElementById("profile-photo");
+    const profileName = document.getElementById("profile-name");
+    const profilePositions = document.getElementById("profile-positions");
+    const profileEmail = document.getElementById("profile-email");
+    const profileAddress = document.getElementById("profile-address");
+    const aboutContainer = document.getElementById("about-container");
+    const researchList = document.getElementById("research-list");
 
     const publicationsContainer = document.getElementById("publications-container");
     const currentYear = document.getElementById("current-year");
@@ -460,6 +474,80 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    async function loadProfile() {
+      try {
+        const response = await fetch(PROFILE_URL, { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+
+        const profile = await response.json();
+
+        const name = profile.name || "Shun Li";
+        const chineseName = profile.chineseName || "";
+        const photo = profile.photo || "images/li.png";
+        const email = profile.email || "";
+        const address = profile.address || "";
+
+        profilePhoto.src = photo;
+        profilePhoto.alt = `${name} profile photo`;
+
+        profileName.innerHTML = `
+          ${escapeHTML(name)}
+          ${chineseName ? `<br />(${escapeHTML(chineseName)})` : ""}
+        `;
+
+        profilePositions.innerHTML = Array.isArray(profile.positions)
+          ? profile.positions
+              .map(position => `<p class="position">${escapeHTML(position)}</p>`)
+              .join("")
+          : "";
+
+        profileEmail.innerHTML = email
+          ? `
+            <i class="fa-solid fa-envelope"></i>
+            Email:
+            <a href="mailto:${escapeHTML(email)}">${escapeHTML(email)}</a>
+          `
+          : "";
+
+        profileAddress.innerHTML = address
+          ? `
+            <i class="fa-solid fa-location-dot"></i>
+            Address:
+            ${escapeHTML(address)}
+          `
+          : "";
+
+        aboutContainer.innerHTML = Array.isArray(profile.about)
+          ? profile.about
+              .map(paragraph => `<p>${escapeHTML(paragraph)}</p>`)
+              .join("")
+          : "";
+
+        researchList.innerHTML = Array.isArray(profile.researchInterests)
+          ? profile.researchInterests
+              .map(item => `<li>${escapeHTML(item)}</li>`)
+              .join("")
+          : "";
+      } catch (error) {
+        console.error("Error loading profile:", error);
+
+        aboutContainer.innerHTML = `
+          <p class="status-message">
+            Profile information is temporarily unavailable.
+          </p>
+        `;
+
+        researchList.innerHTML = `
+          <li class="status-message">
+            Research interests are temporarily unavailable.
+          </li>
+        `;
+      }
     }
 
     function normaliseDOI(doi) {
@@ -673,6 +761,7 @@
       }
     }
 
+    loadProfile();
     loadPublications();
   </script>
 </body>
