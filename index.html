@@ -96,7 +96,7 @@
 
     .sidebar {
       width: 300px;
-      min-height: 100vh;
+      height: 100vh;
       padding: 42px 24px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.92) 100%);
       backdrop-filter: blur(14px);
@@ -106,8 +106,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      position: sticky;
+      position: fixed;
+      left: 0;
       top: 0;
+      overflow-y: auto;
       z-index: 2;
     }
 
@@ -195,6 +197,7 @@
     .content {
       flex: 1;
       padding: 44px 48px;
+      margin-left: 300px;
       position: relative;
       z-index: 1;
     }
@@ -343,8 +346,12 @@
 
       .sidebar {
         width: 100%;
+        height: auto;
         min-height: auto;
         position: relative;
+        left: auto;
+        top: auto;
+        overflow-y: visible;
         box-shadow: none;
         padding: 32px 20px;
       }
@@ -355,6 +362,7 @@
 
       .content {
         padding: 24px 18px 36px;
+        margin-left: 0;
       }
 
       section {
