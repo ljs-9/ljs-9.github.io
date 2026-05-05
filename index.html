@@ -21,15 +21,12 @@
     :root {
       --bg: #eef3f8;
       --bg-soft: #f7fafd;
-      --card: rgba(255, 255, 255, 0.68);
-      --card-strong: rgba(255, 255, 255, 0.78);
       --text: #1f2937;
       --muted: #5f6b7a;
       --light-muted: #7d8794;
-      --line: rgba(120, 140, 170, 0.13);
+      --line: rgba(120, 140, 170, 0.14);
       --accent: #2f6fb3;
       --accent-dark: #1f568f;
-      --shadow: rgba(31, 41, 55, 0.045);
     }
 
     * {
@@ -48,9 +45,9 @@
       position: relative;
       overflow-x: hidden;
       background:
-        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.16), transparent 26%),
-        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.14), transparent 24%),
-        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.16), transparent 25%),
+        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.14), transparent 26%),
+        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.12), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.13), transparent 25%),
         linear-gradient(135deg, #edf3f9 0%, #f8fbfe 45%, #eef4f8 100%);
       color: var(--text);
       font-family: "Merriweather", "Noto Serif SC", serif;
@@ -63,11 +60,11 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.20) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.20) 1px, transparent 1px);
       background-size: 36px 36px;
       mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
-      opacity: 0.22;
+      opacity: 0.20;
       z-index: 0;
     }
 
@@ -79,7 +76,7 @@
       width: 420px;
       height: 420px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(47, 111, 179, 0.10), transparent 68%);
+      background: radial-gradient(circle, rgba(47, 111, 179, 0.08), transparent 68%);
       pointer-events: none;
       z-index: 0;
     }
@@ -101,8 +98,8 @@
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 251, 255, 0.86) 100%);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      box-shadow: 5px 0 18px rgba(31, 41, 55, 0.055);
-      border-right: 1px solid rgba(120, 140, 170, 0.08);
+      box-shadow: 5px 0 18px rgba(31, 41, 55, 0.045);
+      border-right: 1px solid rgba(120, 140, 170, 0.07);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -120,7 +117,7 @@
       object-fit: cover;
       margin-bottom: 20px;
       border: 4px solid rgba(255, 255, 255, 0.88);
-      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.10);
+      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.09);
     }
 
     .sidebar h1 {
@@ -165,22 +162,22 @@
       justify-content: center;
       gap: 10px;
       padding: 9px 10px;
-      border: 1px solid rgba(120, 140, 170, 0.10);
+      border: 1px solid rgba(120, 140, 170, 0.09);
       border-radius: 10px;
       text-align: center;
       font-size: 0.95rem;
-      background: rgba(255, 255, 255, 0.58);
+      background: rgba(255, 255, 255, 0.50);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       transition: all 0.22s ease;
     }
 
     .links a:hover {
-      background: rgba(241, 247, 252, 0.82);
-      border-color: rgba(47, 111, 179, 0.16);
+      background: rgba(241, 247, 252, 0.78);
+      border-color: rgba(47, 111, 179, 0.14);
       text-decoration: none;
       transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(31, 41, 55, 0.05);
+      box-shadow: 0 6px 14px rgba(31, 41, 55, 0.045);
     }
 
     .links a i {
@@ -209,38 +206,26 @@
 
     .top-nav {
       max-width: 920px;
-      margin: 0 auto 28px;
-      padding: 14px 22px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.66);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.26);
-      box-shadow:
-        0 6px 18px rgba(31, 41, 55, 0.03),
-        0 1px 4px rgba(31, 41, 55, 0.018);
+      margin: 0 auto 42px;
+      padding: 4px 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-    }
-
-    .top-nav-title {
-      font-weight: 700;
-      color: #172033;
-      white-space: nowrap;
+      justify-content: flex-end;
     }
 
     .top-nav-links {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
     .top-nav-links a {
-      padding: 7px 12px;
+      padding: 6px 11px;
       border-radius: 999px;
       color: #334155;
       font-size: 0.94rem;
@@ -250,46 +235,26 @@
     .top-nav-links a:hover,
     .top-nav-links a.active {
       color: var(--accent-dark);
-      background: rgba(47, 111, 179, 0.09);
+      background: rgba(47, 111, 179, 0.08);
       text-decoration: none;
     }
 
     section {
-      margin-bottom: 46px;
-      padding: 28px 32px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.64);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      box-shadow:
-        0 8px 22px rgba(31, 41, 55, 0.032),
-        0 1px 4px rgba(31, 41, 55, 0.02);
-      transition: background 0.25s ease, box-shadow 0.25s ease;
+      margin-bottom: 42px;
+      padding: 0 0 6px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
     }
 
     section:hover {
-      background: rgba(255, 255, 255, 0.72);
-      box-shadow:
-        0 10px 26px rgba(31, 41, 55, 0.04),
-        0 1px 5px rgba(31, 41, 55, 0.02);
-    }
-
-    .intro-grid {
-      display: grid;
-      grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.5fr);
-      gap: 28px;
-      margin-bottom: 46px;
-      align-items: stretch;
-    }
-
-    .intro-grid section {
-      margin-bottom: 0;
+      background: transparent;
+      box-shadow: none;
     }
 
     h2 {
-      margin: 0 0 20px;
-      padding-bottom: 10px;
+      margin: 0 0 18px;
+      padding-bottom: 9px;
       border-bottom: 1px solid var(--line);
       font-size: 1.45rem;
       position: relative;
@@ -304,13 +269,13 @@
       width: 72px;
       height: 2px;
       border-radius: 999px;
-      background: linear-gradient(90deg, rgba(47, 111, 179, 0.78), rgba(47, 111, 179, 0.12));
+      background: linear-gradient(90deg, rgba(47, 111, 179, 0.72), rgba(47, 111, 179, 0.10));
     }
 
     h3 {
       margin: 28px 0 14px;
       padding-left: 10px;
-      border-left: 3px solid rgba(47, 111, 179, 0.72);
+      border-left: 3px solid rgba(47, 111, 179, 0.66);
       color: #2b3545;
       font-size: 1.12rem;
     }
@@ -337,11 +302,11 @@
     .keywords span {
       display: inline-flex;
       align-items: center;
-      padding: 7px 12px;
+      padding: 6px 11px;
       border-radius: 999px;
       color: #244866;
-      background: rgba(47, 111, 179, 0.085);
-      border: 1px solid rgba(47, 111, 179, 0.10);
+      background: rgba(47, 111, 179, 0.075);
+      border: 1px solid rgba(47, 111, 179, 0.08);
       font-size: 0.92rem;
     }
 
@@ -358,42 +323,6 @@
     .education-item span {
       display: block;
       color: var(--muted);
-    }
-
-    .life-photo {
-      width: 100%;
-      height: 100%;
-      min-height: 260px;
-      border-radius: 16px;
-      object-fit: cover;
-      display: block;
-      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.055);
-    }
-
-    .life-photo-placeholder {
-      min-height: 100%;
-      border: 1.2px dashed rgba(47, 111, 179, 0.22);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.42);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 28px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .life-photo-placeholder strong {
-      display: block;
-      margin-bottom: 8px;
-      color: #2b3545;
-    }
-
-    .life-photo-placeholder code {
-      padding: 2px 6px;
-      border-radius: 6px;
-      background: rgba(47, 111, 179, 0.08);
-      color: #1f568f;
     }
 
     .status-message {
@@ -443,32 +372,16 @@
       }
 
       .top-nav {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 16px 18px;
+        justify-content: flex-start;
+        margin-bottom: 32px;
       }
 
       .top-nav-links {
         justify-content: flex-start;
       }
 
-      .intro-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
-        margin-bottom: 28px;
-      }
-
       section {
-        padding: 22px 20px;
-        margin-bottom: 28px;
-      }
-
-      section:hover {
-        transform: none;
-      }
-
-      .life-photo-placeholder {
-        min-height: 240px;
+        margin-bottom: 34px;
       }
     }
   </style>
@@ -517,8 +430,6 @@
 
   <div class="content">
     <nav class="top-nav" aria-label="Main navigation">
-      <div class="top-nav-title">Homepage</div>
-
       <div class="top-nav-links">
         <a class="active" href="index.html">Home</a>
         <a href="publications.html">Publications</a>
@@ -529,25 +440,12 @@
     </nav>
 
     <main>
-      <div class="intro-grid">
-        <section id="personal-photo">
-          <div id="life-photo-container" class="life-photo-placeholder">
-            <div>
-              <strong>Reserved space for a personal life photo</strong>
-              <p>
-                Upload your personal photo as <code>images/life.png</code>.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section id="about">
-          <h2>About Me</h2>
-          <div id="about-container">
-            <p class="status-message">Loading profile...</p>
-          </div>
-        </section>
-      </div>
+      <section id="about">
+        <h2>About Me</h2>
+        <div id="about-container">
+          <p class="status-message">Loading profile...</p>
+        </div>
+      </section>
 
       <section id="research">
         <h2>Research Interests</h2>
@@ -585,7 +483,6 @@
     const profileEmail = document.getElementById("profile-email");
     const profileAddress = document.getElementById("profile-address");
     const aboutContainer = document.getElementById("about-container");
-    const lifePhotoContainer = document.getElementById("life-photo-container");
     const researchList = document.getElementById("research-list");
     const keywordsList = document.getElementById("keywords-list");
     const educationContainer = document.getElementById("education-container");
@@ -601,28 +498,6 @@
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-    }
-
-    function renderLifePhoto(profile) {
-      const lifePhoto = profile.lifePhoto || "";
-
-      if (!lifePhoto) {
-        lifePhotoContainer.className = "life-photo-placeholder";
-        lifePhotoContainer.innerHTML = `
-          <div>
-            <strong>Reserved space for a personal life photo</strong>
-            <p>
-              Add <code>"lifePhoto": "images/life.png"</code> to <code>data/profile.json</code>.
-            </p>
-          </div>
-        `;
-        return;
-      }
-
-      lifePhotoContainer.className = "";
-      lifePhotoContainer.innerHTML = `
-        <img class="life-photo" src="${escapeHTML(lifePhoto)}" alt="${escapeHTML(profile.name || "Personal photo")}" />
-      `;
     }
 
     async function loadProfile() {
@@ -703,8 +578,6 @@
               `)
               .join("")
           : `<p class="status-message">Education information is temporarily unavailable.</p>`;
-
-        renderLifePhoto(profile);
       } catch (error) {
         console.error("Error loading profile:", error);
 
