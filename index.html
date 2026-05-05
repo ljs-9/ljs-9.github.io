@@ -21,15 +21,15 @@
     :root {
       --bg: #eef3f8;
       --bg-soft: #f7fafd;
-      --card: rgba(255, 255, 255, 0.84);
-      --card-strong: rgba(255, 255, 255, 0.94);
+      --card: rgba(255, 255, 255, 0.68);
+      --card-strong: rgba(255, 255, 255, 0.78);
       --text: #1f2937;
       --muted: #5f6b7a;
       --light-muted: #7d8794;
-      --line: rgba(120, 140, 170, 0.18);
+      --line: rgba(120, 140, 170, 0.13);
       --accent: #2f6fb3;
       --accent-dark: #1f568f;
-      --shadow: rgba(31, 41, 55, 0.08);
+      --shadow: rgba(31, 41, 55, 0.045);
     }
 
     * {
@@ -63,11 +63,11 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
       background-size: 36px 36px;
       mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
-      opacity: 0.28;
+      opacity: 0.22;
       z-index: 0;
     }
 
@@ -79,7 +79,7 @@
       width: 420px;
       height: 420px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(47, 111, 179, 0.12), transparent 68%);
+      background: radial-gradient(circle, rgba(47, 111, 179, 0.10), transparent 68%);
       pointer-events: none;
       z-index: 0;
     }
@@ -98,11 +98,11 @@
       width: 300px;
       height: 100vh;
       padding: 42px 24px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.92) 100%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 251, 255, 0.86) 100%);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      box-shadow: 6px 0 24px rgba(31, 41, 55, 0.08);
-      border-right: 1px solid rgba(120, 140, 170, 0.14);
+      box-shadow: 5px 0 18px rgba(31, 41, 55, 0.055);
+      border-right: 1px solid rgba(120, 140, 170, 0.08);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -119,8 +119,8 @@
       border-radius: 50%;
       object-fit: cover;
       margin-bottom: 20px;
-      border: 4px solid rgba(255, 255, 255, 0.92);
-      box-shadow: 0 10px 28px rgba(31, 41, 55, 0.12);
+      border: 4px solid rgba(255, 255, 255, 0.88);
+      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.10);
     }
 
     .sidebar h1 {
@@ -165,22 +165,22 @@
       justify-content: center;
       gap: 10px;
       padding: 9px 10px;
-      border: 1px solid rgba(120, 140, 170, 0.16);
+      border: 1px solid rgba(120, 140, 170, 0.10);
       border-radius: 10px;
       text-align: center;
       font-size: 0.95rem;
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.58);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
       transition: all 0.22s ease;
     }
 
     .links a:hover {
-      background: rgba(241, 247, 252, 0.96);
-      border-color: rgba(47, 111, 179, 0.25);
+      background: rgba(241, 247, 252, 0.82);
+      border-color: rgba(47, 111, 179, 0.16);
       text-decoration: none;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.08);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(31, 41, 55, 0.05);
     }
 
     .links a i {
@@ -191,7 +191,7 @@
     }
 
     .links a:hover i {
-      transform: scale(1.08);
+      transform: scale(1.06);
     }
 
     .content {
@@ -212,13 +212,13 @@
       margin: 0 auto 28px;
       padding: 14px 22px;
       border-radius: 16px;
-      background: rgba(255, 255, 255, 0.86);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.56);
+      background: rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.26);
       box-shadow:
-        0 8px 24px rgba(31, 41, 55, 0.06),
-        0 2px 8px rgba(31, 41, 55, 0.04);
+        0 6px 18px rgba(31, 41, 55, 0.03),
+        0 1px 4px rgba(31, 41, 55, 0.018);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -250,36 +250,36 @@
     .top-nav-links a:hover,
     .top-nav-links a.active {
       color: var(--accent-dark);
-      background: rgba(47, 111, 179, 0.10);
+      background: rgba(47, 111, 179, 0.09);
       text-decoration: none;
     }
 
     section {
-      margin-bottom: 54px;
+      margin-bottom: 46px;
       padding: 28px 32px;
       border-radius: 18px;
-      background: var(--card);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.54);
+      background: rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.24);
       box-shadow:
-        0 10px 30px rgba(31, 41, 55, 0.06),
-        0 2px 10px rgba(31, 41, 55, 0.04);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+        0 8px 22px rgba(31, 41, 55, 0.032),
+        0 1px 4px rgba(31, 41, 55, 0.02);
+      transition: background 0.25s ease, box-shadow 0.25s ease;
     }
 
     section:hover {
-      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.72);
       box-shadow:
-        0 16px 36px rgba(31, 41, 55, 0.09),
-        0 4px 12px rgba(31, 41, 55, 0.05);
+        0 10px 26px rgba(31, 41, 55, 0.04),
+        0 1px 5px rgba(31, 41, 55, 0.02);
     }
 
     .intro-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.9fr);
+      grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.5fr);
       gap: 28px;
-      margin-bottom: 54px;
+      margin-bottom: 46px;
       align-items: stretch;
     }
 
@@ -302,15 +302,15 @@
       left: 0;
       bottom: -1px;
       width: 72px;
-      height: 3px;
+      height: 2px;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), rgba(47, 111, 179, 0.22));
+      background: linear-gradient(90deg, rgba(47, 111, 179, 0.78), rgba(47, 111, 179, 0.12));
     }
 
     h3 {
       margin: 28px 0 14px;
       padding-left: 10px;
-      border-left: 4px solid var(--accent);
+      border-left: 3px solid rgba(47, 111, 179, 0.72);
       color: #2b3545;
       font-size: 1.12rem;
     }
@@ -340,8 +340,8 @@
       padding: 7px 12px;
       border-radius: 999px;
       color: #244866;
-      background: rgba(47, 111, 179, 0.10);
-      border: 1px solid rgba(47, 111, 179, 0.16);
+      background: rgba(47, 111, 179, 0.085);
+      border: 1px solid rgba(47, 111, 179, 0.10);
       font-size: 0.92rem;
     }
 
@@ -367,14 +367,14 @@
       border-radius: 16px;
       object-fit: cover;
       display: block;
-      box-shadow: 0 10px 24px rgba(31, 41, 55, 0.08);
+      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.055);
     }
 
     .life-photo-placeholder {
       min-height: 100%;
-      border: 1.5px dashed rgba(47, 111, 179, 0.36);
+      border: 1.2px dashed rgba(47, 111, 179, 0.22);
       border-radius: 16px;
-      background: rgba(255, 255, 255, 0.50);
+      background: rgba(255, 255, 255, 0.42);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -392,7 +392,7 @@
     .life-photo-placeholder code {
       padding: 2px 6px;
       border-radius: 6px;
-      background: rgba(47, 111, 179, 0.10);
+      background: rgba(47, 111, 179, 0.08);
       color: #1f568f;
     }
 
@@ -530,13 +530,6 @@
 
     <main>
       <div class="intro-grid">
-        <section id="about">
-          <h2>About Me</h2>
-          <div id="about-container">
-            <p class="status-message">Loading profile...</p>
-          </div>
-        </section>
-
         <section id="personal-photo">
           <div id="life-photo-container" class="life-photo-placeholder">
             <div>
@@ -545,6 +538,13 @@
                 Upload your personal photo as <code>images/life.png</code>.
               </p>
             </div>
+          </div>
+        </section>
+
+        <section id="about">
+          <h2>About Me</h2>
+          <div id="about-container">
+            <p class="status-message">Loading profile...</p>
           </div>
         </section>
       </div>
@@ -612,7 +612,7 @@
           <div>
             <strong>Reserved space for a personal life photo</strong>
             <p>
-              Add <code>"lifePhoto": "images/life.jpg"</code> to <code>data/profile.json</code>.
+              Add <code>"lifePhoto": "images/life.png"</code> to <code>data/profile.json</code>.
             </p>
           </div>
         `;
