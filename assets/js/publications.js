@@ -1,0 +1,91 @@
+const PUBLICATIONS_URL = "./data/publications.json";
+const container = document.getElementById("publications-container");
+
+function escapeHTML(value = "") {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function normaliseDOI(doi) {
+  if (!doi) return "";
+  const clean = String(doi).trim();
+  if (!clean) return "";
+  if (clean.startsWith("http://") || clean.startsWith("https://")) return clean;
+  return `https://doi.org/${clean}`;
+}
+
+function normalisePDFPath(pdf) {
+  if (!pdf) return "";
+  const clean = String(pdf).trim();
+  if (!clean) return "";
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("./") || clean.startsWith("/")) return clean;
+  return clean.startsWith("papers/") ? clean : `papers/${clean}`;
+}
+
+function sortYearsDescending(years) {
+  return years.sort((a, b) => {
+    const yearA = parseInt(a, 10);
+    const yearB = parseInt(b, 10);
+    if (Number.isNaN(yearA) && Number.isNaN(yearB)) return a.localeCompare(b);
+    if (Number.isNaN(yearA)) return 1;
+    if (Number.isNaN(yearB)) return -1;
+    return yearB - yearA;
+  });
+}
+
+function renderPublications(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    container.innerHTML = `<p class="publication-meta">Publication information is currently unavailable.</p>`;
+    return;
+  }
+
+  const grouped = data.reduce((acc, pub) => {
+    const year = String(pub.year || "Forthcoming").trim() || "Forthcoming";
+    if (!acc[year]) acc[year] = [];
+    acc[year].push(pub);
+    return acc;
+  }, {});
+
+  let html = "";
+  sortYearsDescending(Object.keys(grouped)).forEach(year => {
+    html += `<div class="publication-year"><h3>${escapeHTML(year)}</h3><ul class="publication-list">`;
+    grouped[year].forEach(pub => {
+      const doiURL = normaliseDOI(pub.doi);
+      const pdfURL = normalisePDFPath(pub.pdf);
+      const scholarURL = pub.scholar || "";
+      const citations = Number(pub.citations) > 0 ? `<span class="publication-meta">Citations: ${Number(pub.citations)}</span>` : "";
+      html += `
+        <li class="publication-item">
+          <div>
+            ${pub.authors ? `${escapeHTML(pub.authors)} ` : ""}(${escapeHTML(pub.year || year)}).
+            <span class="publication-title">${escapeHTML(pub.title || "Untitled")}</span>.
+            ${pub.journal ? `<em>${escapeHTML(pub.journal)}</em>.` : ""}
+          </div>
+          <div class="publication-links">
+            ${doiURL ? `<a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> DOI</a>` : ""}
+            ${pdfURL ? `<a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-file-pdf"></i> PDF</a>` : ""}
+            ${scholarURL ? `<a href="${escapeHTML(scholarURL)}" target="_blank" rel="noopener noreferrer"><i class="ai ai-google-scholar"></i> Scholar</a>` : ""}
+            ${citations}
+          </div>
+        </li>
+      `;
+    });
+    html += `</ul></div>`;
+  });
+  container.innerHTML = html;
+}
+
+fetch(PUBLICATIONS_URL, { cache: "no-store" })
+  .then(response => {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  })
+  .then(renderPublications)
+  .catch(error => {
+    console.error("Failed to load publications:", error);
+    container.innerHTML = `<p class="publication-meta">Publication information is temporarily unavailable. Please visit Google Scholar for the latest list.</p>`;
+  });
