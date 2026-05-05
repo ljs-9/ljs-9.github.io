@@ -11,10 +11,7 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
 
-  <!-- Academic profile icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
-
-  <!-- General icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
   <style>
@@ -193,19 +190,25 @@
 
     .content {
       flex: 1;
-      padding: 32px 48px 44px;
+      min-height: 100vh;
+      padding: 32px 48px 24px;
       margin-left: 300px;
       position: relative;
       z-index: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     main {
+      width: 100%;
       max-width: 920px;
       margin: 0 auto;
+      flex: 1;
     }
 
     .top-nav {
       max-width: 920px;
+      width: 100%;
       margin: 0 auto 42px;
       padding: 4px 0;
       background: transparent;
@@ -247,11 +250,6 @@
       box-shadow: none;
     }
 
-    section:hover {
-      background: transparent;
-      box-shadow: none;
-    }
-
     h2 {
       margin: 0 0 18px;
       padding-bottom: 9px;
@@ -270,14 +268,6 @@
       height: 2px;
       border-radius: 999px;
       background: linear-gradient(90deg, rgba(47, 111, 179, 0.72), rgba(47, 111, 179, 0.10));
-    }
-
-    h3 {
-      margin: 28px 0 14px;
-      padding-left: 10px;
-      border-left: 3px solid rgba(47, 111, 179, 0.66);
-      color: #2b3545;
-      font-size: 1.12rem;
     }
 
     p {
@@ -330,15 +320,10 @@
       font-size: 0.95rem;
     }
 
-    .note {
-      margin-top: 10px;
-      color: var(--light-muted);
-      font-size: 0.88rem;
-    }
-
     footer {
+      width: 100%;
       max-width: 920px;
-      margin: 20px auto 0;
+      margin: auto auto 0;
       padding: 18px 0 0;
       color: var(--light-muted);
       text-align: center;
@@ -367,8 +352,9 @@
       }
 
       .content {
-        padding: 24px 18px 36px;
+        padding: 24px 18px 24px;
         margin-left: 0;
+        min-height: auto;
       }
 
       .top-nav {
