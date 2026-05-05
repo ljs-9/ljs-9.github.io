@@ -360,6 +360,16 @@
       color: var(--muted);
     }
 
+    .life-photo {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      border-radius: 16px;
+      object-fit: cover;
+      display: block;
+      box-shadow: 0 10px 24px rgba(31, 41, 55, 0.08);
+    }
+
     .life-photo-placeholder {
       min-height: 100%;
       border: 1.5px dashed rgba(47, 111, 179, 0.36);
@@ -384,6 +394,11 @@
       border-radius: 6px;
       background: rgba(47, 111, 179, 0.10);
       color: #1f568f;
+    }
+
+    .status-message {
+      color: var(--muted);
+      font-size: 0.95rem;
     }
 
     .note {
@@ -461,27 +476,16 @@
 
 <body>
   <aside class="sidebar">
-    <img id="profile-photo" class="profile-photo" src="images/li.png" alt="Shun Li profile photo" />
+    <img id="profile-photo" class="profile-photo" src="images/li.png" alt="Profile photo" />
 
-    <h1 id="profile-name">Shun Li <br />(李顺)</h1>
+    <h1 id="profile-name">Loading...</h1>
 
     <div id="profile-positions">
-      <p class="position">Ph.D. in Financial Management</p>
-      <p class="position">School of Business Administration</p>
-      <p class="position">Dankook University, Yongin, Korea</p>
+      <p class="position">Loading profile...</p>
     </div>
 
-    <p class="email" id="profile-email">
-      <i class="fa-solid fa-envelope"></i>
-      Email:
-      <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a>
-    </p>
-
-    <p class="address" id="profile-address">
-      <i class="fa-solid fa-location-dot"></i>
-      Address:
-      Yongin, Gyeonggi-do, Republic of Korea
-    </p>
+    <p class="email" id="profile-email"></p>
+    <p class="address" id="profile-address"></p>
 
     <nav class="links" aria-label="Academic profiles">
       <a href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer">
@@ -528,28 +532,18 @@
       <div class="intro-grid">
         <section id="about">
           <h2>About Me</h2>
-
-          <p>
-            My research focuses on financial economics, behavioural finance, asset pricing, and volatility forecasting.
-          </p>
-
-          <p>
-            I am particularly interested in how geopolitical risk, policy uncertainty, investor sentiment, ESG-related uncertainty, and macro-financial conditions shape long-term volatility in financial markets.
-          </p>
-
-          <p>
-            This website presents my research profile, selected publications, curriculum vitae, teaching experience, and contact information.
-          </p>
+          <div id="about-container">
+            <p class="status-message">Loading profile...</p>
+          </div>
         </section>
 
         <section id="personal-photo">
           <h2>Personal Photo</h2>
-
-          <div class="life-photo-placeholder">
+          <div id="life-photo-container" class="life-photo-placeholder">
             <div>
               <strong>Reserved space for a personal life photo</strong>
               <p>
-                Upload your personal photo as <code>images/life.jpg</code>. After uploading it, this placeholder can be replaced with the actual image.
+                Upload your personal photo as <code>images/life.jpg</code>.
               </p>
             </div>
           </div>
@@ -558,54 +552,194 @@
 
       <section id="research">
         <h2>Research Interests</h2>
-
-        <ul class="research-list">
-          <li>Financial economics and asset pricing</li>
-          <li>Behavioural finance and investor sentiment</li>
-          <li>Volatility modelling and forecasting</li>
-          <li>Geopolitical risk, policy uncertainty, and macro-financial interactions</li>
-          <li>ESG uncertainty, green innovation, and corporate value</li>
+        <ul class="research-list" id="research-list">
+          <li class="status-message">Loading research interests...</li>
         </ul>
       </section>
 
       <section id="keywords">
         <h2>Keywords</h2>
-
-        <div class="keywords">
-          <span>GARCH-MIDAS</span>
-          <span>GJR-GARCH-MIDAS</span>
-          <span>Volatility Forecasting</span>
-          <span>Geopolitical Risk</span>
-          <span>Policy Uncertainty</span>
-          <span>Investor Sentiment</span>
-          <span>Asset Pricing</span>
-          <span>Behavioural Finance</span>
-          <span>ESG</span>
+        <div class="keywords" id="keywords-list">
+          <span>Loading...</span>
         </div>
       </section>
 
       <section id="education">
         <h2>Education</h2>
-
-        <div class="education-item">
-          <strong>Ph.D. in Financial Management</strong>
-          <span>School of Business Administration, Dankook University, Yongin, Republic of Korea</span>
-        </div>
-
-        <div class="education-item">
-          <strong>Research Training</strong>
-          <span>Financial economics, volatility modelling, macro-finance, and empirical asset pricing</span>
+        <div id="education-container">
+          <p class="status-message">Loading education...</p>
         </div>
       </section>
     </main>
 
     <footer>
-      &copy; <span id="current-year"></span> Shun Li. All rights reserved.
+      &copy; <span id="current-year"></span> <span id="footer-name">Shun Li</span>. All rights reserved.
     </footer>
   </div>
 
   <script>
-    document.getElementById("current-year").textContent = new Date().getFullYear();
+    const PROFILE_URL = "./data/profile.json";
+
+    const profilePhoto = document.getElementById("profile-photo");
+    const profileName = document.getElementById("profile-name");
+    const profilePositions = document.getElementById("profile-positions");
+    const profileEmail = document.getElementById("profile-email");
+    const profileAddress = document.getElementById("profile-address");
+    const aboutContainer = document.getElementById("about-container");
+    const lifePhotoContainer = document.getElementById("life-photo-container");
+    const researchList = document.getElementById("research-list");
+    const keywordsList = document.getElementById("keywords-list");
+    const educationContainer = document.getElementById("education-container");
+    const currentYear = document.getElementById("current-year");
+    const footerName = document.getElementById("footer-name");
+
+    currentYear.textContent = new Date().getFullYear();
+
+    function escapeHTML(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderLifePhoto(profile) {
+      const lifePhoto = profile.lifePhoto || "";
+
+      if (!lifePhoto) {
+        lifePhotoContainer.className = "life-photo-placeholder";
+        lifePhotoContainer.innerHTML = `
+          <div>
+            <strong>Reserved space for a personal life photo</strong>
+            <p>
+              Add <code>"lifePhoto": "images/life.jpg"</code> to <code>data/profile.json</code>.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      lifePhotoContainer.className = "";
+      lifePhotoContainer.innerHTML = `
+        <img class="life-photo" src="${escapeHTML(lifePhoto)}" alt="${escapeHTML(profile.name || "Personal photo")}" />
+      `;
+    }
+
+    async function loadProfile() {
+      try {
+        const response = await fetch(PROFILE_URL, { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+
+        const profile = await response.json();
+
+        const name = profile.name || "Shun Li";
+        const chineseName = profile.chineseName || "";
+        const photo = profile.photo || "images/li.png";
+        const email = profile.email || "";
+        const address = profile.address || "";
+
+        document.title = `${name} | Personal Academic Homepage`;
+
+        profilePhoto.src = photo;
+        profilePhoto.alt = `${name} profile photo`;
+
+        profileName.innerHTML = `
+          ${escapeHTML(name)}
+          ${chineseName ? `<br />(${escapeHTML(chineseName)})` : ""}
+        `;
+
+        footerName.textContent = name;
+
+        profilePositions.innerHTML = Array.isArray(profile.positions)
+          ? profile.positions
+              .map(position => `<p class="position">${escapeHTML(position)}</p>`)
+              .join("")
+          : "";
+
+        profileEmail.innerHTML = email
+          ? `
+            <i class="fa-solid fa-envelope"></i>
+            Email:
+            <a href="mailto:${escapeHTML(email)}">${escapeHTML(email)}</a>
+          `
+          : "";
+
+        profileAddress.innerHTML = address
+          ? `
+            <i class="fa-solid fa-location-dot"></i>
+            Address:
+            ${escapeHTML(address)}
+          `
+          : "";
+
+        aboutContainer.innerHTML = Array.isArray(profile.about)
+          ? profile.about
+              .map(paragraph => `<p>${escapeHTML(paragraph)}</p>`)
+              .join("")
+          : `<p class="status-message">Profile information is temporarily unavailable.</p>`;
+
+        researchList.innerHTML = Array.isArray(profile.researchInterests)
+          ? profile.researchInterests
+              .map(item => `<li>${escapeHTML(item)}</li>`)
+              .join("")
+          : `<li class="status-message">Research interests are temporarily unavailable.</li>`;
+
+        keywordsList.innerHTML = Array.isArray(profile.keywords)
+          ? profile.keywords
+              .map(item => `<span>${escapeHTML(item)}</span>`)
+              .join("")
+          : `<span>Keywords are temporarily unavailable.</span>`;
+
+        educationContainer.innerHTML = Array.isArray(profile.education)
+          ? profile.education
+              .map(item => `
+                <div class="education-item">
+                  <strong>${escapeHTML(item.degree || "")}</strong>
+                  <span>${escapeHTML(item.institution || "")}</span>
+                </div>
+              `)
+              .join("")
+          : `<p class="status-message">Education information is temporarily unavailable.</p>`;
+
+        renderLifePhoto(profile);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+
+        profileName.textContent = "Shun Li";
+
+        profilePositions.innerHTML = `
+          <p class="position">Profile information is temporarily unavailable.</p>
+        `;
+
+        aboutContainer.innerHTML = `
+          <p class="status-message">
+            Profile information is temporarily unavailable.
+          </p>
+        `;
+
+        researchList.innerHTML = `
+          <li class="status-message">
+            Research interests are temporarily unavailable.
+          </li>
+        `;
+
+        keywordsList.innerHTML = `
+          <span>Keywords are temporarily unavailable.</span>
+        `;
+
+        educationContainer.innerHTML = `
+          <p class="status-message">
+            Education information is temporarily unavailable.
+          </p>
+        `;
+      }
+    }
+
+    loadProfile();
   </script>
 </body>
 </html>
