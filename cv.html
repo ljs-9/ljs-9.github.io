@@ -158,29 +158,37 @@
       background: linear-gradient(90deg, rgba(47, 111, 179, 0.72), rgba(47, 111, 179, 0.10));
     }
 
-    h3 {
-      margin: 28px 0 14px;
-      padding-left: 10px;
-      border-left: 3px solid rgba(47, 111, 179, 0.66);
-      color: #2b3545;
-      font-size: 1.12rem;
-    }
-
     p {
       margin: 0 0 14px;
     }
 
-    ul {
-      margin: 0;
-      padding-left: 22px;
+    .cv-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
     }
 
-    li {
-      margin-bottom: 8px;
+    .cv-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 15px;
+      border-radius: 999px;
+      background: rgba(47, 111, 179, 0.08);
+      border: 1px solid rgba(47, 111, 179, 0.12);
+      color: var(--accent-dark);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .cv-button:hover {
+      background: rgba(47, 111, 179, 0.13);
+      text-decoration: none;
     }
 
     .note {
-      margin-top: 10px;
+      margin-top: 14px;
       color: var(--light-muted);
       font-size: 0.9rem;
     }
@@ -232,32 +240,22 @@
         <h2>Curriculum Vitae</h2>
 
         <p>
-          This page is reserved for a full academic CV, including education, academic appointments, publications, research projects, teaching experience, awards, and professional service.
+          My full curriculum vitae is available as a PDF file.
         </p>
+
+        <div class="cv-actions">
+          <a class="cv-button" href="files/Shun_Li_CV.pdf" target="_blank" rel="noopener noreferrer">
+            View CV
+          </a>
+
+          <a class="cv-button" href="files/Shun_Li_CV.pdf" download>
+            Download CV
+          </a>
+        </div>
 
         <p class="note">
-          If a PDF version of the CV is available, it can be linked here, for example:
-          <code>files/Shun_Li_CV.pdf</code>.
+          Last updated version: <code>files/Shun_Li_CV.pdf</code>
         </p>
-      </section>
-
-      <section>
-        <h2>Education</h2>
-
-        <ul>
-          <li>Ph.D. in Financial Management, Dankook University</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>Research Areas</h2>
-
-        <ul>
-          <li>Financial economics and asset pricing</li>
-          <li>Behavioural finance and investor sentiment</li>
-          <li>Volatility modelling and forecasting</li>
-          <li>Geopolitical risk, policy uncertainty, and macro-financial interactions</li>
-        </ul>
       </section>
     </main>
 
