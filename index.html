@@ -4,50 +4,488 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Shun Li</title>
+  <title>Shun Li | Personal Academic Homepage</title>
 
   <meta name="description" content="Personal academic homepage of Shun Li, Ph.D. in Financial Management. Research interests include financial economics, behavioural finance, asset pricing, investor sentiment, geopolitical risk, and volatility forecasting." />
   <meta name="author" content="Shun Li" />
 
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
+
+  <!-- Academic profile icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
+
+  <!-- General icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="stylesheet" href="assets/css/academic.css" />
+
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --bg-soft: #f7fafd;
+      --card: rgba(255, 255, 255, 0.84);
+      --card-strong: rgba(255, 255, 255, 0.94);
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --light-muted: #7d8794;
+      --line: rgba(120, 140, 170, 0.18);
+      --accent: #2f6fb3;
+      --accent-dark: #1f568f;
+      --shadow: rgba(31, 41, 55, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      position: relative;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.16), transparent 26%),
+        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.16), transparent 25%),
+        linear-gradient(135deg, #edf3f9 0%, #f8fbfe 45%, #eef4f8 100%);
+      color: var(--text);
+      font-family: "Merriweather", "Noto Serif SC", serif;
+      line-height: 1.7;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
+      opacity: 0.28;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      right: -160px;
+      bottom: -180px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(47, 111, 179, 0.12), transparent 68%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent-dark);
+      text-decoration: underline;
+    }
+
+    .sidebar {
+      width: 300px;
+      height: 100vh;
+      padding: 42px 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.92) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 6px 0 24px rgba(31, 41, 55, 0.08);
+      border-right: 1px solid rgba(120, 140, 170, 0.14);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: fixed;
+      left: 0;
+      top: 0;
+      overflow-y: auto;
+      z-index: 2;
+    }
+
+    .profile-photo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border: 4px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 28px rgba(31, 41, 55, 0.12);
+    }
+
+    .sidebar h1 {
+      margin: 8px 0 8px;
+      font-size: 1.75rem;
+      line-height: 1.25;
+      text-align: center;
+      color: #172033;
+    }
+
+    .position {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .email,
+    .address {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .address {
+      margin-top: 8px;
+    }
+
+    .links {
+      width: 100%;
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(120, 140, 170, 0.16);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      transition: all 0.22s ease;
+    }
+
+    .links a:hover {
+      background: rgba(241, 247, 252, 0.96);
+      border-color: rgba(47, 111, 179, 0.25);
+      text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.08);
+    }
+
+    .links a i {
+      width: 20px;
+      font-size: 1.15rem;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .links a:hover i {
+      transform: scale(1.08);
+    }
+
+    .content {
+      flex: 1;
+      padding: 32px 48px 44px;
+      margin-left: 300px;
+      position: relative;
+      z-index: 1;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      max-width: 920px;
+      margin: 0 auto 28px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.56);
+      box-shadow:
+        0 8px 24px rgba(31, 41, 55, 0.06),
+        0 2px 8px rgba(31, 41, 55, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .top-nav-title {
+      font-weight: 700;
+      color: #172033;
+      white-space: nowrap;
+    }
+
+    .top-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-nav-links a {
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: #334155;
+      font-size: 0.94rem;
+      transition: all 0.2s ease;
+    }
+
+    .top-nav-links a:hover,
+    .top-nav-links a.active {
+      color: var(--accent-dark);
+      background: rgba(47, 111, 179, 0.10);
+      text-decoration: none;
+    }
+
+    section {
+      margin-bottom: 54px;
+      padding: 28px 32px;
+      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.54);
+      box-shadow:
+        0 10px 30px rgba(31, 41, 55, 0.06),
+        0 2px 10px rgba(31, 41, 55, 0.04);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    section:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 16px 36px rgba(31, 41, 55, 0.09),
+        0 4px 12px rgba(31, 41, 55, 0.05);
+    }
+
+    h2 {
+      margin: 0 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 1.45rem;
+      position: relative;
+      color: #172033;
+    }
+
+    h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 72px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), rgba(47, 111, 179, 0.22));
+    }
+
+    h3 {
+      margin: 28px 0 14px;
+      padding-left: 10px;
+      border-left: 4px solid var(--accent);
+      color: #2b3545;
+      font-size: 1.12rem;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    .research-list {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    .research-list li {
+      margin-bottom: 8px;
+    }
+
+    .info-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .info-list li {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(120, 140, 170, 0.14);
+    }
+
+    .info-list li:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
+      color: #2b3545;
+      font-weight: 700;
+    }
+
+    .keywords {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .keywords span {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: #244866;
+      background: rgba(47, 111, 179, 0.10);
+      border: 1px solid rgba(47, 111, 179, 0.16);
+      font-size: 0.92rem;
+    }
+
+    .education-item {
+      margin-bottom: 18px;
+    }
+
+    .education-item strong {
+      display: block;
+      color: #172033;
+      margin-bottom: 4px;
+    }
+
+    .education-item span {
+      display: block;
+      color: var(--muted);
+    }
+
+    .life-photo-placeholder {
+      min-height: 260px;
+      border: 1.5px dashed rgba(47, 111, 179, 0.36);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .life-photo-placeholder strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #2b3545;
+    }
+
+    .life-photo-placeholder code {
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: rgba(47, 111, 179, 0.10);
+      color: #1f568f;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: var(--light-muted);
+      font-size: 0.88rem;
+    }
+
+    footer {
+      max-width: 920px;
+      margin: 20px auto 0;
+      padding: 18px 0 0;
+      color: var(--light-muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        position: relative;
+        left: auto;
+        top: auto;
+        overflow-y: visible;
+        box-shadow: none;
+        padding: 32px 20px;
+      }
+
+      .links {
+        max-width: 360px;
+      }
+
+      .content {
+        padding: 24px 18px 36px;
+        margin-left: 0;
+      }
+
+      .top-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 18px;
+      }
+
+      .top-nav-links {
+        justify-content: flex-start;
+      }
+
+      section {
+        padding: 22px 20px;
+        margin-bottom: 28px;
+      }
+
+      section:hover {
+        transform: none;
+      }
+
+      .info-list li {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <header class="topbar">
-    <nav class="navbar" aria-label="Main navigation">
-      <a class="brand" href="index.html">Shun Li</a>
-      <div class="nav-links">
-        <a class="active" href="index.html">Home</a>
-        <a href="publications.html">publications</a>
-        <a href="cv.html">CV</a>
-        <a href="teaching.html">Teaching</a>
-        <a href="contact.html">Contact</a>
-      </div>
-    </nav>
-  </header>
-
   <aside class="sidebar">
     <img id="profile-photo" class="profile-photo" src="images/li.png" alt="Shun Li profile photo" />
 
-    <h1>Shun Li <br />(李顺)</h1>
+    <h1 id="profile-name">Shun Li <br />(李顺)</h1>
 
-    <div>
+    <div id="profile-positions">
       <p class="position">Ph.D. in Financial Management</p>
       <p class="position">School of Business Administration</p>
       <p class="position">Dankook University, Yongin, Korea</p>
     </div>
 
-    <p class="email">
+    <p class="email" id="profile-email">
       <i class="fa-solid fa-envelope"></i>
       Email:
       <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a>
     </p>
 
-    <p class="address">
+    <p class="address" id="profile-address">
       <i class="fa-solid fa-location-dot"></i>
+      Address:
       Yongin, Gyeonggi-do, Republic of Korea
     </p>
 
@@ -80,8 +518,20 @@
   </aside>
 
   <div class="content">
+    <nav class="top-nav" aria-label="Main navigation">
+      <div class="top-nav-title">Academic Homepage</div>
+
+      <div class="top-nav-links">
+        <a class="active" href="index.html">Home</a>
+        <a href="publications.html">论文</a>
+        <a href="cv.html">CV</a>
+        <a href="teaching.html">Teaching</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </nav>
+
     <main>
-      <section>
+      <section id="about">
         <h2>About Me</h2>
 
         <p>
@@ -97,17 +547,38 @@
         </p>
       </section>
 
-      <section>
+      <section id="basic-information">
         <h2>Basic Information</h2>
 
-        <p><strong>Name:</strong> Shun Li / 李顺</p>
-        <p><strong>Degree:</strong> Ph.D. in Financial Management</p>
-        <p><strong>Affiliation:</strong> School of Business Administration, Dankook University</p>
-        <p><strong>Email:</strong> <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a></p>
-        <p><strong>Location:</strong> Yongin, Gyeonggi-do, Republic of Korea</p>
+        <ul class="info-list">
+          <li>
+            <span class="info-label">Name</span>
+            <span>Shun Li / 李顺</span>
+          </li>
+
+          <li>
+            <span class="info-label">Degree</span>
+            <span>Ph.D. in Financial Management</span>
+          </li>
+
+          <li>
+            <span class="info-label">Affiliation</span>
+            <span>School of Business Administration, Dankook University</span>
+          </li>
+
+          <li>
+            <span class="info-label">Email</span>
+            <span><a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a></span>
+          </li>
+
+          <li>
+            <span class="info-label">Location</span>
+            <span>Yongin, Gyeonggi-do, Republic of Korea</span>
+          </li>
+        </ul>
       </section>
 
-      <section>
+      <section id="research">
         <h2>Research Interests</h2>
 
         <ul class="research-list">
@@ -119,10 +590,10 @@
         </ul>
       </section>
 
-      <section>
+      <section id="keywords">
         <h2>Keywords</h2>
 
-        <div class="chips">
+        <div class="keywords">
           <span>GARCH-MIDAS</span>
           <span>GJR-GARCH-MIDAS</span>
           <span>Volatility Forecasting</span>
@@ -130,21 +601,26 @@
           <span>Policy Uncertainty</span>
           <span>Investor Sentiment</span>
           <span>Asset Pricing</span>
+          <span>Behavioural Finance</span>
           <span>ESG</span>
         </div>
       </section>
 
-      <section>
+      <section id="education">
         <h2>Education</h2>
 
-        <p><strong>Ph.D. in Financial Management</strong></p>
-        <p>School of Business Administration, Dankook University, Yongin, Republic of Korea</p>
-        <p class="note">
-          Research training in financial economics, volatility modelling, macro-finance, and empirical asset pricing.
-        </p>
+        <div class="education-item">
+          <strong>Ph.D. in Financial Management</strong>
+          <span>School of Business Administration, Dankook University, Yongin, Republic of Korea</span>
+        </div>
+
+        <div class="education-item">
+          <strong>Research Training</strong>
+          <span>Financial economics, volatility modelling, macro-finance, and empirical asset pricing</span>
+        </div>
       </section>
 
-      <section>
+      <section id="personal-photo">
         <h2>Personal Photo</h2>
 
         <div class="life-photo-placeholder">
