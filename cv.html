@@ -34,6 +34,8 @@
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
       background:
         radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.14), transparent 26%),
         radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.12), transparent 24%),
@@ -87,12 +89,17 @@
       width: 100%;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 32px 48px 44px;
+      padding: 32px 48px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     main {
+      width: 100%;
       max-width: 920px;
       margin: 0 auto;
+      flex: 1;
     }
 
     .top-nav {
@@ -105,6 +112,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      width: 100%;
     }
 
     .top-nav-links {
@@ -187,15 +195,10 @@
       text-decoration: none;
     }
 
-    .note {
-      margin-top: 14px;
-      color: var(--light-muted);
-      font-size: 0.9rem;
-    }
-
     footer {
+      width: 100%;
       max-width: 920px;
-      margin: 20px auto 0;
+      margin: auto auto 0;
       padding: 18px 0 0;
       color: var(--light-muted);
       text-align: center;
@@ -204,7 +207,7 @@
 
     @media (max-width: 860px) {
       .content {
-        padding: 24px 18px 36px;
+        padding: 24px 18px 24px;
       }
 
       .top-nav {
@@ -239,6 +242,7 @@
       <section>
         <h2>Curriculum Vitae</h2>
 
+
         <div class="cv-actions">
           <a class="cv-button" href="files/Shun_Li_CV.pdf" target="_blank" rel="noopener noreferrer">
             View CV
@@ -248,10 +252,6 @@
             Download CV
           </a>
         </div>
-
-        <p class="note">
-          Last updated version: <code>files/Shun_Li_CV.pdf</code>
-        </p>
       </section>
     </main>
 
