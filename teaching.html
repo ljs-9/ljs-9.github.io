@@ -16,7 +16,7 @@
       --text: #1f2937;
       --muted: #5f6b7a;
       --light-muted: #7d8794;
-      --line: rgba(120, 140, 170, 0.13);
+      --line: rgba(120, 140, 170, 0.14);
       --accent: #2f6fb3;
       --accent-dark: #1f568f;
     }
@@ -25,13 +25,19 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
       background:
-        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.16), transparent 26%),
-        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.14), transparent 24%),
-        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.16), transparent 25%),
+        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.14), transparent 26%),
+        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.12), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.13), transparent 25%),
         linear-gradient(135deg, #edf3f9 0%, #f8fbfe 45%, #eef4f8 100%);
       color: var(--text);
       font-family: "Merriweather", "Noto Serif SC", serif;
@@ -44,11 +50,24 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.20) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.20) 1px, transparent 1px);
       background-size: 36px 36px;
       mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
-      opacity: 0.22;
+      opacity: 0.20;
+      z-index: 0;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      right: -160px;
+      bottom: -180px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(47, 111, 179, 0.08), transparent 68%);
+      pointer-events: none;
       z-index: 0;
     }
 
@@ -78,38 +97,26 @@
 
     .top-nav {
       max-width: 920px;
-      margin: 0 auto 28px;
-      padding: 14px 22px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.66);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.26);
-      box-shadow:
-        0 6px 18px rgba(31, 41, 55, 0.03),
-        0 1px 4px rgba(31, 41, 55, 0.018);
+      margin: 0 auto 42px;
+      padding: 4px 0;
+      background: transparent;
+      border: none;
+      box-shadow: none;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-    }
-
-    .top-nav-title {
-      font-weight: 700;
-      color: #172033;
-      white-space: nowrap;
+      justify-content: flex-end;
     }
 
     .top-nav-links {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       justify-content: flex-end;
     }
 
     .top-nav-links a {
-      padding: 7px 12px;
+      padding: 6px 11px;
       border-radius: 999px;
       color: #334155;
       font-size: 0.94rem;
@@ -119,26 +126,21 @@
     .top-nav-links a:hover,
     .top-nav-links a.active {
       color: var(--accent-dark);
-      background: rgba(47, 111, 179, 0.09);
+      background: rgba(47, 111, 179, 0.08);
       text-decoration: none;
     }
 
     section {
-      margin-bottom: 46px;
-      padding: 28px 32px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.64);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      box-shadow:
-        0 8px 22px rgba(31, 41, 55, 0.032),
-        0 1px 4px rgba(31, 41, 55, 0.02);
+      margin-bottom: 42px;
+      padding: 0 0 6px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
     }
 
     h2 {
-      margin: 0 0 20px;
-      padding-bottom: 10px;
+      margin: 0 0 18px;
+      padding-bottom: 9px;
       border-bottom: 1px solid var(--line);
       font-size: 1.45rem;
       position: relative;
@@ -153,7 +155,7 @@
       width: 72px;
       height: 2px;
       border-radius: 999px;
-      background: linear-gradient(90deg, rgba(47, 111, 179, 0.78), rgba(47, 111, 179, 0.12));
+      background: linear-gradient(90deg, rgba(47, 111, 179, 0.72), rgba(47, 111, 179, 0.10));
     }
 
     p {
@@ -184,9 +186,8 @@
       }
 
       .top-nav {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 16px 18px;
+        justify-content: flex-start;
+        margin-bottom: 32px;
       }
 
       .top-nav-links {
@@ -194,8 +195,7 @@
       }
 
       section {
-        padding: 22px 20px;
-        margin-bottom: 28px;
+        margin-bottom: 34px;
       }
     }
   </style>
@@ -204,8 +204,6 @@
 <body>
   <div class="content">
     <nav class="top-nav" aria-label="Main navigation">
-      <div class="top-nav-title">Academic Homepage</div>
-
       <div class="top-nav-links">
         <a href="index.html">Home</a>
         <a href="publications.html">Publications</a>
