@@ -3,45 +3,675 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Publications | Shun Li</title>
-  <meta name="description" content="Selected publications of Shun Li." />
+
+  <meta name="description" content="Publications of Shun Li." />
+  <meta name="author" content="Shun Li" />
+
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="stylesheet" href="assets/css/academic.css" />
+
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --bg-soft: #f7fafd;
+      --card: rgba(255, 255, 255, 0.84);
+      --card-strong: rgba(255, 255, 255, 0.94);
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --light-muted: #7d8794;
+      --line: rgba(120, 140, 170, 0.18);
+      --accent: #2f6fb3;
+      --accent-dark: #1f568f;
+      --shadow: rgba(31, 41, 55, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      position: relative;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.16), transparent 26%),
+        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.16), transparent 25%),
+        linear-gradient(135deg, #edf3f9 0%, #f8fbfe 45%, #eef4f8 100%);
+      color: var(--text);
+      font-family: "Merriweather", "Noto Serif SC", serif;
+      line-height: 1.7;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
+      opacity: 0.28;
+      z-index: 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent-dark);
+      text-decoration: underline;
+    }
+
+    .sidebar {
+      width: 300px;
+      height: 100vh;
+      padding: 42px 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.92) 100%);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 6px 0 24px rgba(31, 41, 55, 0.08);
+      border-right: 1px solid rgba(120, 140, 170, 0.14);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: fixed;
+      left: 0;
+      top: 0;
+      overflow-y: auto;
+      z-index: 2;
+    }
+
+    .profile-photo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 20px;
+      border: 4px solid rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 28px rgba(31, 41, 55, 0.12);
+    }
+
+    .sidebar h1 {
+      margin: 8px 0 8px;
+      font-size: 1.75rem;
+      line-height: 1.25;
+      text-align: center;
+      color: #172033;
+    }
+
+    .position {
+      margin: 4px 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .email {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .links {
+      width: 100%;
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(120, 140, 170, 0.16);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.72);
+      transition: all 0.22s ease;
+    }
+
+    .links a:hover {
+      background: rgba(241, 247, 252, 0.96);
+      border-color: rgba(47, 111, 179, 0.25);
+      text-decoration: none;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.08);
+    }
+
+    .content {
+      flex: 1;
+      padding: 32px 48px 44px;
+      margin-left: 300px;
+      position: relative;
+      z-index: 1;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      max-width: 920px;
+      margin: 0 auto 28px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.56);
+      box-shadow:
+        0 8px 24px rgba(31, 41, 55, 0.06),
+        0 2px 8px rgba(31, 41, 55, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .top-nav-title {
+      font-weight: 700;
+      color: #172033;
+      white-space: nowrap;
+    }
+
+    .top-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-nav-links a {
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: #334155;
+      font-size: 0.94rem;
+      transition: all 0.2s ease;
+    }
+
+    .top-nav-links a:hover,
+    .top-nav-links a.active {
+      color: var(--accent-dark);
+      background: rgba(47, 111, 179, 0.10);
+      text-decoration: none;
+    }
+
+    section {
+      margin-bottom: 54px;
+      padding: 28px 32px;
+      border-radius: 18px;
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.54);
+      box-shadow:
+        0 10px 30px rgba(31, 41, 55, 0.06),
+        0 2px 10px rgba(31, 41, 55, 0.04);
+    }
+
+    h2 {
+      margin: 0 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 1.45rem;
+      position: relative;
+      color: #172033;
+    }
+
+    h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 72px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), rgba(47, 111, 179, 0.22));
+    }
+
+    h3 {
+      margin: 28px 0 14px;
+      padding-left: 10px;
+      border-left: 4px solid var(--accent);
+      color: #2b3545;
+      font-size: 1.12rem;
+    }
+
+    .publication-year {
+      margin-top: 24px;
+    }
+
+    .publication-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .publication-item {
+      margin-bottom: 18px;
+      padding: 16px 0 18px;
+      border-bottom: 1px solid rgba(120, 140, 170, 0.16);
+    }
+
+    .publication-item:first-child {
+      padding-top: 0;
+    }
+
+    .publication-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .publication-title {
+      font-weight: 700;
+      color: #172033;
+    }
+
+    .publication-meta {
+      color: var(--muted);
+    }
+
+    .publication-links {
+      margin-top: 7px;
+      font-size: 0.92rem;
+    }
+
+    .publication-links a {
+      margin-right: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-message {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .note {
+      margin-top: 10px;
+      color: var(--light-muted);
+      font-size: 0.88rem;
+    }
+
+    footer {
+      max-width: 920px;
+      margin: 20px auto 0;
+      padding: 18px 0 0;
+      color: var(--light-muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 860px) {
+      body {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        min-height: auto;
+        position: relative;
+        left: auto;
+        top: auto;
+        overflow-y: visible;
+        box-shadow: none;
+        padding: 32px 20px;
+      }
+
+      .links {
+        max-width: 360px;
+      }
+
+      .content {
+        padding: 24px 18px 36px;
+        margin-left: 0;
+      }
+
+      .top-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 18px;
+      }
+
+      .top-nav-links {
+        justify-content: flex-start;
+      }
+
+      section {
+        padding: 22px 20px;
+        margin-bottom: 28px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <nav class="navbar" aria-label="Main navigation">
-      <a class="brand" href="index.html">Shun Li · Academic Homepage</a>
-      <div class="nav-links">
+  <aside class="sidebar">
+    <img class="profile-photo" src="images/li.png" alt="Shun Li profile photo" />
+
+    <h1>Shun Li <br />(李顺)</h1>
+
+    <p class="position">Ph.D. in Financial Management</p>
+    <p class="position">School of Business Administration</p>
+    <p class="position">Dankook University, Yongin, Korea</p>
+
+    <p class="email">
+      <i class="fa-solid fa-envelope"></i>
+      <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a>
+    </p>
+
+    <nav class="links" aria-label="Academic profiles">
+      <a href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer">
+        <i class="ai ai-orcid"></i>
+        <span>ORCID</span>
+      </a>
+
+      <a href="https://www.scopus.com/authid/detail.uri?authorId=59491989200" target="_blank" rel="noopener noreferrer">
+        <i class="ai ai-scopus"></i>
+        <span>Scopus</span>
+      </a>
+
+      <a href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">
+        <i class="ai ai-google-scholar"></i>
+        <span>Google Scholar</span>
+      </a>
+
+      <a href="https://www.webofscience.com/wos/author/record/LUZ-1556-2024" target="_blank" rel="noopener noreferrer">
+        <i class="ai ai-clarivate"></i>
+        <span>Web of Science</span>
+      </a>
+
+      <a href="https://www.researchgate.net/profile/Shun-Li-54" target="_blank" rel="noopener noreferrer">
+        <i class="ai ai-researchgate"></i>
+        <span>ResearchGate</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="content">
+    <nav class="top-nav" aria-label="Main navigation">
+      <div class="top-nav-title">Academic Homepage</div>
+
+      <div class="top-nav-links">
         <a href="index.html">Home</a>
-        <a class="active" href="publications.html">论文</a>
+        <a class="active" href="publications.html">Publications</a>
         <a href="cv.html">CV</a>
         <a href="teaching.html">Teaching</a>
         <a href="contact.html">Contact</a>
       </div>
     </nav>
-  </header>
 
-  <main class="page">
-    <section class="card wide">
-      <h2 class="section-title">Publications</h2>
-      <p class="publication-meta">
-        Selected SSCI-indexed and peer-reviewed publications. The list is loaded from <code>data/publications.json</code>, so later updates only require editing that data file.
-      </p>
-      <div class="button-row">
-        <a class="button secondary" href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en" target="_blank" rel="noopener noreferrer"><i class="ai ai-google-scholar"></i> Google Scholar</a>
-        <a class="button secondary" href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer"><i class="ai ai-orcid"></i> ORCID</a>
-      </div>
-      <div id="publications-container" style="margin-top: 24px;">
-        <p class="publication-meta">Loading publications...</p>
-      </div>
-    </section>
-  </main>
+    <main>
+      <section id="publications">
+        <h2>Publications</h2>
 
-  <footer>&copy; <span id="year"></span> Shun Li. All rights reserved.</footer>
-  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
-  <script src="assets/js/publications.js"></script>
+        <div id="publications-container">
+          <p class="status-message">Loading publications...</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      &copy; <span id="current-year"></span> Shun Li. All rights reserved.
+    </footer>
+  </div>
+
+  <script>
+    const PUBLICATIONS_URL = "./data/publications.json";
+    const CACHE_KEY = "shun_li_publications_cache_v1";
+
+    const publicationsContainer = document.getElementById("publications-container");
+    const currentYear = document.getElementById("current-year");
+
+    currentYear.textContent = new Date().getFullYear();
+
+    function escapeHTML(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function normaliseDOI(doi) {
+      if (!doi) return "";
+
+      const cleanDOI = String(doi).trim();
+
+      if (!cleanDOI) return "";
+      if (cleanDOI.startsWith("http://") || cleanDOI.startsWith("https://")) {
+        return cleanDOI;
+      }
+
+      return `https://doi.org/${cleanDOI}`;
+    }
+
+    function normalisePDFPath(pdf) {
+      if (!pdf) return "";
+
+      const cleanPDF = String(pdf).trim();
+
+      if (!cleanPDF) return "";
+
+      if (
+        cleanPDF.startsWith("http://") ||
+        cleanPDF.startsWith("https://") ||
+        cleanPDF.startsWith("./") ||
+        cleanPDF.startsWith("/")
+      ) {
+        return cleanPDF;
+      }
+
+      if (cleanPDF.startsWith("papers/")) {
+        return cleanPDF;
+      }
+
+      return `papers/${cleanPDF}`;
+    }
+
+    function isPDFLink(url) {
+      return typeof url === "string" && url.toLowerCase().endsWith(".pdf");
+    }
+
+    function formatPublicationLinks(pub) {
+      const links = [];
+
+      const doiURL = normaliseDOI(pub.doi);
+      if (doiURL) {
+        links.push(`
+          <a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-solid fa-link"></i> DOI
+          </a>
+        `);
+      }
+
+      const pdfURL = normalisePDFPath(pub.pdf);
+      if (pdfURL && isPDFLink(pdfURL)) {
+        links.push(`
+          <a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer">
+            <i class="fa-regular fa-file-pdf"></i> PDF
+          </a>
+        `);
+      }
+
+      return links.length ? `<div class="publication-links">${links.join("")}</div>` : "";
+    }
+
+    function getYear(pub) {
+      if (!pub || !pub.year) return "Forthcoming";
+
+      const year = String(pub.year).trim();
+      return year || "Forthcoming";
+    }
+
+    function sortYearsDescending(years) {
+      return years.sort((a, b) => {
+        const yearA = parseInt(a, 10);
+        const yearB = parseInt(b, 10);
+
+        if (Number.isNaN(yearA) && Number.isNaN(yearB)) return a.localeCompare(b);
+        if (Number.isNaN(yearA)) return 1;
+        if (Number.isNaN(yearB)) return -1;
+
+        return yearB - yearA;
+      });
+    }
+
+    function renderPublications(data, options = {}) {
+      const fromCache = options.fromCache || false;
+
+      if (!Array.isArray(data) || data.length === 0) {
+        publicationsContainer.innerHTML = `
+          <p class="status-message">
+            Publication information is currently unavailable. Please visit Google Scholar for the latest list.
+          </p>
+        `;
+        return;
+      }
+
+      const grouped = data.reduce((acc, pub) => {
+        const year = getYear(pub);
+        if (!acc[year]) acc[year] = [];
+        acc[year].push(pub);
+        return acc;
+      }, {});
+
+      const years = sortYearsDescending(Object.keys(grouped));
+
+      let html = "";
+
+      if (fromCache) {
+        html += `
+          <p class="note">
+            Displaying the most recently available publication list.
+          </p>
+        `;
+      }
+
+      years.forEach(year => {
+        html += `<div class="publication-year"><h3>${escapeHTML(year)}</h3><ul class="publication-list">`;
+
+        grouped[year].forEach(pub => {
+          const authors = escapeHTML(pub.authors || "");
+          const title = escapeHTML(pub.title || "Untitled");
+          const journal = escapeHTML(pub.journal || "");
+          const pages = pub.pages ? `, ${escapeHTML(pub.pages)}` : "";
+          const yearText = escapeHTML(pub.year || year);
+          const citations = Number(pub.citations) > 0
+            ? `<span class="publication-meta">Citations: ${Number(pub.citations)}</span>`
+            : "";
+
+          html += `
+            <li class="publication-item">
+              <div>
+                ${authors ? `${authors} ` : ""}(${yearText}).
+                <span class="publication-title">${title}</span>.
+                ${journal ? `<em>${journal}</em>${pages}.` : ""}
+              </div>
+              ${formatPublicationLinks(pub)}
+              ${citations ? `<div class="publication-links">${citations}</div>` : ""}
+            </li>
+          `;
+        });
+
+        html += "</ul></div>";
+      });
+
+      publicationsContainer.innerHTML = html;
+    }
+
+    function readCachedPublications() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const parsed = JSON.parse(cached);
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+      } catch (error) {
+        console.warn("Failed to read cached publications:", error);
+        return null;
+      }
+    }
+
+    function cachePublications(data) {
+      try {
+        if (Array.isArray(data) && data.length > 0) {
+          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        }
+      } catch (error) {
+        console.warn("Failed to cache publications:", error);
+      }
+    }
+
+    async function loadPublications() {
+      try {
+        const response = await fetch(PUBLICATIONS_URL, { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+          const cached = readCachedPublications();
+
+          if (cached) {
+            renderPublications(cached, { fromCache: true });
+          } else {
+            renderPublications([]);
+          }
+
+          return;
+        }
+
+        cachePublications(data);
+        renderPublications(data);
+      } catch (error) {
+        console.error("Error loading publications:", error);
+
+        const cached = readCachedPublications();
+
+        if (cached) {
+          renderPublications(cached, { fromCache: true });
+        } else {
+          publicationsContainer.innerHTML = `
+            <p class="status-message">
+              Publication information is temporarily unavailable. Please visit Google Scholar for the latest list.
+            </p>
+          `;
+        }
+      }
+    }
+
+    loadPublications();
+  </script>
 </body>
 </html>
