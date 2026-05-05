@@ -16,17 +16,12 @@
 
   <style>
     :root {
-      --bg: #eef3f8;
-      --bg-soft: #f7fafd;
-      --card: rgba(255, 255, 255, 0.84);
-      --card-strong: rgba(255, 255, 255, 0.94);
       --text: #1f2937;
       --muted: #5f6b7a;
       --light-muted: #7d8794;
-      --line: rgba(120, 140, 170, 0.18);
+      --line: rgba(120, 140, 170, 0.13);
       --accent: #2f6fb3;
       --accent-dark: #1f568f;
-      --shadow: rgba(31, 41, 55, 0.08);
     }
 
     * {
@@ -41,7 +36,6 @@
       margin: 0;
       padding: 0;
       min-height: 100vh;
-      display: flex;
       position: relative;
       overflow-x: hidden;
       background:
@@ -60,11 +54,11 @@
       inset: 0;
       pointer-events: none;
       background-image:
-        linear-gradient(rgba(255, 255, 255, 0.24) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.24) 1px, transparent 1px);
+        linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
       background-size: 36px 36px;
       mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
-      opacity: 0.28;
+      opacity: 0.22;
       z-index: 0;
     }
 
@@ -78,94 +72,13 @@
       text-decoration: underline;
     }
 
-    .sidebar {
-      width: 300px;
-      height: 100vh;
-      padding: 42px 24px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.92) 100%);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      box-shadow: 6px 0 24px rgba(31, 41, 55, 0.08);
-      border-right: 1px solid rgba(120, 140, 170, 0.14);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: fixed;
-      left: 0;
-      top: 0;
-      overflow-y: auto;
-      z-index: 2;
-    }
-
-    .profile-photo {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-bottom: 20px;
-      border: 4px solid rgba(255, 255, 255, 0.92);
-      box-shadow: 0 10px 28px rgba(31, 41, 55, 0.12);
-    }
-
-    .sidebar h1 {
-      margin: 8px 0 8px;
-      font-size: 1.75rem;
-      line-height: 1.25;
-      text-align: center;
-      color: #172033;
-    }
-
-    .position {
-      margin: 4px 0;
-      color: var(--muted);
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .email {
-      margin: 14px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-      text-align: center;
-      word-break: break-word;
-    }
-
-    .links {
-      width: 100%;
-      margin-top: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .links a {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 9px 10px;
-      border: 1px solid rgba(120, 140, 170, 0.16);
-      border-radius: 10px;
-      text-align: center;
-      font-size: 0.95rem;
-      background: rgba(255, 255, 255, 0.72);
-      transition: all 0.22s ease;
-    }
-
-    .links a:hover {
-      background: rgba(241, 247, 252, 0.96);
-      border-color: rgba(47, 111, 179, 0.25);
-      text-decoration: none;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px rgba(31, 41, 55, 0.08);
-    }
-
     .content {
-      flex: 1;
-      padding: 32px 48px 44px;
-      margin-left: 300px;
       position: relative;
       z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 48px 44px;
     }
 
     main {
@@ -178,13 +91,13 @@
       margin: 0 auto 28px;
       padding: 14px 22px;
       border-radius: 16px;
-      background: rgba(255, 255, 255, 0.86);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.56);
+      background: rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.26);
       box-shadow:
-        0 8px 24px rgba(31, 41, 55, 0.06),
-        0 2px 8px rgba(31, 41, 55, 0.04);
+        0 6px 18px rgba(31, 41, 55, 0.03),
+        0 1px 4px rgba(31, 41, 55, 0.018);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -216,21 +129,21 @@
     .top-nav-links a:hover,
     .top-nav-links a.active {
       color: var(--accent-dark);
-      background: rgba(47, 111, 179, 0.10);
+      background: rgba(47, 111, 179, 0.09);
       text-decoration: none;
     }
 
     section {
-      margin-bottom: 54px;
+      margin-bottom: 46px;
       padding: 28px 32px;
       border-radius: 18px;
-      background: var(--card);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.54);
+      background: rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.24);
       box-shadow:
-        0 10px 30px rgba(31, 41, 55, 0.06),
-        0 2px 10px rgba(31, 41, 55, 0.04);
+        0 8px 22px rgba(31, 41, 55, 0.032),
+        0 1px 4px rgba(31, 41, 55, 0.02);
     }
 
     h2 {
@@ -248,15 +161,15 @@
       left: 0;
       bottom: -1px;
       width: 72px;
-      height: 3px;
+      height: 2px;
       border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent), rgba(47, 111, 179, 0.22));
+      background: linear-gradient(90deg, rgba(47, 111, 179, 0.78), rgba(47, 111, 179, 0.12));
     }
 
     h3 {
       margin: 28px 0 14px;
       padding-left: 10px;
-      border-left: 4px solid var(--accent);
+      border-left: 3px solid rgba(47, 111, 179, 0.72);
       color: #2b3545;
       font-size: 1.12rem;
     }
@@ -274,7 +187,7 @@
     .publication-item {
       margin-bottom: 18px;
       padding: 16px 0 18px;
-      border-bottom: 1px solid rgba(120, 140, 170, 0.16);
+      border-bottom: 1px solid rgba(120, 140, 170, 0.13);
     }
 
     .publication-item:first-child {
@@ -328,29 +241,8 @@
     }
 
     @media (max-width: 860px) {
-      body {
-        flex-direction: column;
-      }
-
-      .sidebar {
-        width: 100%;
-        height: auto;
-        min-height: auto;
-        position: relative;
-        left: auto;
-        top: auto;
-        overflow-y: visible;
-        box-shadow: none;
-        padding: 32px 20px;
-      }
-
-      .links {
-        max-width: 360px;
-      }
-
       .content {
         padding: 24px 18px 36px;
-        margin-left: 0;
       }
 
       .top-nav {
@@ -372,48 +264,6 @@
 </head>
 
 <body>
-  <aside class="sidebar">
-    <img class="profile-photo" src="images/li.png" alt="Shun Li profile photo" />
-
-    <h1>Shun Li <br />(李顺)</h1>
-
-    <p class="position">Ph.D. in Financial Management</p>
-    <p class="position">School of Business Administration</p>
-    <p class="position">Dankook University, Yongin, Korea</p>
-
-    <p class="email">
-      <i class="fa-solid fa-envelope"></i>
-      <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a>
-    </p>
-
-    <nav class="links" aria-label="Academic profiles">
-      <a href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-orcid"></i>
-        <span>ORCID</span>
-      </a>
-
-      <a href="https://www.scopus.com/authid/detail.uri?authorId=59491989200" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-scopus"></i>
-        <span>Scopus</span>
-      </a>
-
-      <a href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-google-scholar"></i>
-        <span>Google Scholar</span>
-      </a>
-
-      <a href="https://www.webofscience.com/wos/author/record/LUZ-1556-2024" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-clarivate"></i>
-        <span>Web of Science</span>
-      </a>
-
-      <a href="https://www.researchgate.net/profile/Shun-Li-54" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-researchgate"></i>
-        <span>ResearchGate</span>
-      </a>
-    </nav>
-  </aside>
-
   <div class="content">
     <nav class="top-nav" aria-label="Main navigation">
       <div class="top-nav-title">Academic Homepage</div>
@@ -517,6 +367,15 @@
         links.push(`
           <a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer">
             <i class="fa-regular fa-file-pdf"></i> PDF
+          </a>
+        `);
+      }
+
+      const scholarURL = pub.scholar ? String(pub.scholar).trim() : "";
+      if (scholarURL) {
+        links.push(`
+          <a href="${escapeHTML(scholarURL)}" target="_blank" rel="noopener noreferrer">
+            <i class="ai ai-google-scholar"></i> Scholar
           </a>
         `);
       }
