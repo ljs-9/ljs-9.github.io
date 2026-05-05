@@ -3,58 +3,243 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Teaching | Shun Li</title>
-  <meta name="description" content="Teaching profile of Shun Li." />
+
+  <meta name="description" content="Teaching experience of Shun Li." />
+  <meta name="author" content="Shun Li" />
+
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="stylesheet" href="assets/css/academic.css" />
+
+  <style>
+    :root {
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --light-muted: #7d8794;
+      --line: rgba(120, 140, 170, 0.13);
+      --accent: #2f6fb3;
+      --accent-dark: #1f568f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.16), transparent 26%),
+        radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.14), transparent 24%),
+        radial-gradient(circle at 78% 82%, rgba(158, 210, 190, 0.16), transparent 25%),
+        linear-gradient(135deg, #edf3f9 0%, #f8fbfe 45%, #eef4f8 100%);
+      color: var(--text);
+      font-family: "Merriweather", "Noto Serif SC", serif;
+      line-height: 1.7;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.22) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(circle at center, black 35%, transparent 95%);
+      opacity: 0.22;
+      z-index: 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--accent-dark);
+      text-decoration: underline;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 48px 44px;
+    }
+
+    main {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .top-nav {
+      max-width: 920px;
+      margin: 0 auto 28px;
+      padding: 14px 22px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      box-shadow:
+        0 6px 18px rgba(31, 41, 55, 0.03),
+        0 1px 4px rgba(31, 41, 55, 0.018);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .top-nav-title {
+      font-weight: 700;
+      color: #172033;
+      white-space: nowrap;
+    }
+
+    .top-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-nav-links a {
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: #334155;
+      font-size: 0.94rem;
+      transition: all 0.2s ease;
+    }
+
+    .top-nav-links a:hover,
+    .top-nav-links a.active {
+      color: var(--accent-dark);
+      background: rgba(47, 111, 179, 0.09);
+      text-decoration: none;
+    }
+
+    section {
+      margin-bottom: 46px;
+      padding: 28px 32px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.64);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      box-shadow:
+        0 8px 22px rgba(31, 41, 55, 0.032),
+        0 1px 4px rgba(31, 41, 55, 0.02);
+    }
+
+    h2 {
+      margin: 0 0 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 1.45rem;
+      position: relative;
+      color: #172033;
+    }
+
+    h2::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -1px;
+      width: 72px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(47, 111, 179, 0.78), rgba(47, 111, 179, 0.12));
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      max-width: 920px;
+      margin: 20px auto 0;
+      padding: 18px 0 0;
+      color: var(--light-muted);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 860px) {
+      .content {
+        padding: 24px 18px 36px;
+      }
+
+      .top-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 18px;
+      }
+
+      .top-nav-links {
+        justify-content: flex-start;
+      }
+
+      section {
+        padding: 22px 20px;
+        margin-bottom: 28px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <nav class="navbar" aria-label="Main navigation">
-      <a class="brand" href="index.html">Shun Li · Academic Homepage</a>
-      <div class="nav-links">
+  <div class="content">
+    <nav class="top-nav" aria-label="Main navigation">
+      <div class="top-nav-title">Academic Homepage</div>
+
+      <div class="top-nav-links">
         <a href="index.html">Home</a>
-        <a href="publications.html">论文</a>
+        <a href="publications.html">Publications</a>
         <a href="cv.html">CV</a>
         <a class="active" href="teaching.html">Teaching</a>
         <a href="contact.html">Contact</a>
       </div>
     </nav>
-  </header>
 
-  <main class="page">
-    <section class="card wide">
-      <h2 class="section-title">Teaching</h2>
-      <p>
-        My teaching interests cover financial management, corporate finance, international finance, asset valuation, derivatives, financial data analysis, and Python-based quantitative finance.
-      </p>
-    </section>
+    <main>
+      <section>
+        <h2>Teaching</h2>
 
-    <section class="grid">
-      <div class="card">
-        <h2 class="section-title">Teaching Areas</h2>
+        <p>
+          This page is reserved for teaching experience, courses, teaching philosophy, and student supervision.
+        </p>
+
         <ul>
           <li>Financial Management</li>
-          <li>Corporate Finance</li>
           <li>International Finance</li>
-          <li>Asset Valuation</li>
-          <li>Options, Futures, and Other Derivatives</li>
-          <li>Python for Finance and Financial Data Analysis</li>
+          <li>Derivatives and Risk Management</li>
+          <li>Financial Data Analysis</li>
+          <li>Python for Finance</li>
         </ul>
-      </div>
+      </section>
+    </main>
 
-      <div class="card">
-        <h2 class="section-title">Teaching Philosophy</h2>
-        <p>
-          I emphasise the connection between financial theory, empirical evidence, and practical decision-making. In quantitative courses, I aim to help students understand not only how to implement models, but also why the assumptions, data structure, and economic interpretation matter.
-        </p>
-      </div>
-    </section>
-  </main>
+    <footer>
+      &copy; <span id="current-year"></span> Shun Li. All rights reserved.
+    </footer>
+  </div>
 
-  <footer>&copy; <span id="year"></span> Shun Li. All rights reserved.</footer>
-  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById("current-year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
