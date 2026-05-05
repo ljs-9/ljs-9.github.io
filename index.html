@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Shun Li | Personal Academic Homepage</title>
+  <title>Shun Li</title>
 
   <meta name="description" content="Personal academic homepage of Shun Li, Ph.D. in Financial Management. Research interests include financial economics, behavioural finance, asset pricing, investor sentiment, geopolitical risk, and volatility forecasting." />
   <meta name="author" content="Shun Li" />
@@ -275,6 +275,18 @@
         0 4px 12px rgba(31, 41, 55, 0.05);
     }
 
+    .intro-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(260px, 0.9fr);
+      gap: 28px;
+      margin-bottom: 54px;
+      align-items: stretch;
+    }
+
+    .intro-grid section {
+      margin-bottom: 0;
+    }
+
     h2 {
       margin: 0 0 20px;
       padding-bottom: 10px;
@@ -316,29 +328,6 @@
       margin-bottom: 8px;
     }
 
-    .info-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .info-list li {
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 16px;
-      padding: 9px 0;
-      border-bottom: 1px solid rgba(120, 140, 170, 0.14);
-    }
-
-    .info-list li:last-child {
-      border-bottom: none;
-    }
-
-    .info-label {
-      color: #2b3545;
-      font-weight: 700;
-    }
-
     .keywords {
       display: flex;
       flex-wrap: wrap;
@@ -372,7 +361,7 @@
     }
 
     .life-photo-placeholder {
-      min-height: 260px;
+      min-height: 100%;
       border: 1.5px dashed rgba(47, 111, 179, 0.36);
       border-radius: 16px;
       background: rgba(255, 255, 255, 0.50);
@@ -448,6 +437,12 @@
         justify-content: flex-start;
       }
 
+      .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        margin-bottom: 28px;
+      }
+
       section {
         padding: 22px 20px;
         margin-bottom: 28px;
@@ -457,9 +452,8 @@
         transform: none;
       }
 
-      .info-list li {
-        grid-template-columns: 1fr;
-        gap: 2px;
+      .life-photo-placeholder {
+        min-height: 240px;
       }
     }
   </style>
@@ -523,7 +517,7 @@
 
       <div class="top-nav-links">
         <a class="active" href="index.html">Home</a>
-        <a href="publications.html">论文</a>
+        <a href="publications.html">Publications</a>
         <a href="cv.html">CV</a>
         <a href="teaching.html">Teaching</a>
         <a href="contact.html">Contact</a>
@@ -531,52 +525,36 @@
     </nav>
 
     <main>
-      <section id="about">
-        <h2>About Me</h2>
+      <div class="intro-grid">
+        <section id="about">
+          <h2>About Me</h2>
 
-        <p>
-          My research focuses on financial economics, behavioural finance, asset pricing, and volatility forecasting.
-        </p>
+          <p>
+            My research focuses on financial economics, behavioural finance, asset pricing, and volatility forecasting.
+          </p>
 
-        <p>
-          I am particularly interested in how geopolitical risk, policy uncertainty, investor sentiment, ESG-related uncertainty, and macro-financial conditions shape long-term volatility in financial markets.
-        </p>
+          <p>
+            I am particularly interested in how geopolitical risk, policy uncertainty, investor sentiment, ESG-related uncertainty, and macro-financial conditions shape long-term volatility in financial markets.
+          </p>
 
-        <p>
-          This website presents my research profile, selected publications, curriculum vitae, teaching experience, and contact information.
-        </p>
-      </section>
+          <p>
+            This website presents my research profile, selected publications, curriculum vitae, teaching experience, and contact information.
+          </p>
+        </section>
 
-      <section id="basic-information">
-        <h2>Basic Information</h2>
+        <section id="personal-photo">
+          <h2>Personal Photo</h2>
 
-        <ul class="info-list">
-          <li>
-            <span class="info-label">Name</span>
-            <span>Shun Li / 李顺</span>
-          </li>
-
-          <li>
-            <span class="info-label">Degree</span>
-            <span>Ph.D. in Financial Management</span>
-          </li>
-
-          <li>
-            <span class="info-label">Affiliation</span>
-            <span>School of Business Administration, Dankook University</span>
-          </li>
-
-          <li>
-            <span class="info-label">Email</span>
-            <span><a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a></span>
-          </li>
-
-          <li>
-            <span class="info-label">Location</span>
-            <span>Yongin, Gyeonggi-do, Republic of Korea</span>
-          </li>
-        </ul>
-      </section>
+          <div class="life-photo-placeholder">
+            <div>
+              <strong>Reserved space for a personal life photo</strong>
+              <p>
+                Upload your personal photo as <code>images/life.jpg</code>. After uploading it, this placeholder can be replaced with the actual image.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <section id="research">
         <h2>Research Interests</h2>
@@ -617,19 +595,6 @@
         <div class="education-item">
           <strong>Research Training</strong>
           <span>Financial economics, volatility modelling, macro-finance, and empirical asset pricing</span>
-        </div>
-      </section>
-
-      <section id="personal-photo">
-        <h2>Personal Photo</h2>
-
-        <div class="life-photo-placeholder">
-          <div>
-            <strong>Reserved space for a personal life photo</strong>
-            <p>
-              Upload your personal photo as <code>images/life.jpg</code>. After uploading it, this placeholder can be replaced with the actual image.
-            </p>
-          </div>
         </div>
       </section>
     </main>
