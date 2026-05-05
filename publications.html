@@ -38,6 +38,8 @@
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
       background:
         radial-gradient(circle at 12% 18%, rgba(91, 141, 239, 0.14), transparent 26%),
         radial-gradient(circle at 86% 16%, rgba(120, 193, 255, 0.12), transparent 24%),
@@ -91,16 +93,22 @@
       width: 100%;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 32px 48px 44px;
+      padding: 32px 48px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     main {
-      max-width: 920px;
+      width: 100%;
+      max-width: 960px;
       margin: 0 auto;
+      flex: 1;
     }
 
     .top-nav {
-      max-width: 920px;
+      max-width: 960px;
+      width: 100%;
       margin: 0 auto 42px;
       padding: 4px 0;
       background: transparent;
@@ -171,7 +179,7 @@
     }
 
     .publication-year {
-      margin-top: 24px;
+      margin-top: 26px;
     }
 
     .publication-list {
@@ -181,8 +189,12 @@
     }
 
     .publication-item {
-      margin-bottom: 18px;
-      padding: 16px 0 18px;
+      display: grid;
+      grid-template-columns: 180px minmax(0, 1fr);
+      gap: 22px;
+      align-items: start;
+      margin-bottom: 22px;
+      padding: 18px 0 22px;
       border-bottom: 1px solid rgba(120, 140, 170, 0.14);
     }
 
@@ -195,6 +207,24 @@
       padding-bottom: 0;
     }
 
+    .publication-thumb {
+      width: 100%;
+    }
+
+    .publication-thumb img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      border-radius: 10px;
+      display: block;
+      border: 1px solid rgba(120, 140, 170, 0.10);
+      background: rgba(255, 255, 255, 0.42);
+    }
+
+    .publication-content {
+      min-width: 0;
+    }
+
     .publication-title {
       font-weight: 700;
       color: #172033;
@@ -205,7 +235,7 @@
     }
 
     .publication-links {
-      margin-top: 7px;
+      margin-top: 8px;
       font-size: 0.92rem;
     }
 
@@ -228,17 +258,29 @@
     }
 
     footer {
-      max-width: 920px;
-      margin: 20px auto 0;
+      width: 100%;
+      max-width: 960px;
+      margin: auto auto 0;
       padding: 18px 0 0;
       color: var(--light-muted);
       text-align: center;
       font-size: 0.9rem;
     }
 
+    @media (max-width: 760px) {
+      .publication-item {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      .publication-thumb {
+        max-width: 280px;
+      }
+    }
+
     @media (max-width: 860px) {
       .content {
-        padding: 24px 18px 36px;
+        padding: 24px 18px 24px;
       }
 
       .top-nav {
@@ -287,6 +329,7 @@
   <script>
     const PUBLICATIONS_URL = "./data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
+    const DEFAULT_PUBLICATION_IMAGE = "images/publications/default.jpg";
 
     const publicationsContainer = document.getElementById("publications-container");
     const currentYear = document.getElementById("current-year");
@@ -342,6 +385,18 @@
       return typeof url === "string" && url.toLowerCase().endsWith(".pdf");
     }
 
+    function getPublicationImage(pub) {
+      if (pub.image && String(pub.image).trim()) {
+        return String(pub.image).trim();
+      }
+
+      if (pub.slug && String(pub.slug).trim()) {
+        return `images/publications/${String(pub.slug).trim()}.jpg`;
+      }
+
+      return DEFAULT_PUBLICATION_IMAGE;
+    }
+
     function formatPublicationLinks(pub) {
       const links = [];
 
@@ -377,7 +432,6 @@
 
     function getYear(pub) {
       if (!pub || !pub.year) return "Forthcoming";
-
       const year = String(pub.year).trim();
       return year || "Forthcoming";
     }
@@ -435,19 +489,33 @@
           const journal = escapeHTML(pub.journal || "");
           const pages = pub.pages ? `, ${escapeHTML(pub.pages)}` : "";
           const yearText = escapeHTML(pub.year || year);
+          const imageURL = getPublicationImage(pub);
+
           const citations = Number(pub.citations) > 0
             ? `<span class="publication-meta">Citations: ${Number(pub.citations)}</span>`
             : "";
 
           html += `
             <li class="publication-item">
-              <div>
-                ${authors ? `${authors} ` : ""}(${yearText}).
-                <span class="publication-title">${title}</span>.
-                ${journal ? `<em>${journal}</em>${pages}.` : ""}
+              <div class="publication-thumb">
+                <img
+                  src="${escapeHTML(imageURL)}"
+                  alt="${title}"
+                  loading="lazy"
+                  onerror="this.onerror=null;this.src='${DEFAULT_PUBLICATION_IMAGE}';"
+                />
               </div>
-              ${formatPublicationLinks(pub)}
-              ${citations ? `<div class="publication-links">${citations}</div>` : ""}
+
+              <div class="publication-content">
+                <div>
+                  ${authors ? `${authors} ` : ""}(${yearText}).
+                  <span class="publication-title">${title}</span>.
+                  ${journal ? `<em>${journal}</em>${pages}.` : ""}
+                </div>
+
+                ${formatPublicationLinks(pub)}
+                ${citations ? `<div class="publication-links">${citations}</div>` : ""}
+              </div>
             </li>
           `;
         });
