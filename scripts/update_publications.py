@@ -19,12 +19,14 @@ OUTPUT_PATH = "data/publications.json"
 TEMP_PATH = "data/publications.tmp.json"
 PAPERS_DIR = "papers"
 PUBLICATION_IMAGES_DIR = "images/publications"
+PUBLICATION_ATTACHMENTS_DIR = "attachments/publications"
 PUBLICATION_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}
 
 # The threshold controls how strict the PDF-title matching is.
 # 0.72 is usually suitable when PDF filenames are meaningful but not identical to paper titles.
 PDF_MATCH_THRESHOLD = 0.72
 IMAGE_MATCH_THRESHOLD = 0.72
+ATTACHMENT_MATCH_THRESHOLD = 0.72
 
 
 # =========================
@@ -131,7 +133,7 @@ def normalise_filename_key(filename: str) -> str:
 
 def build_old_data_map(old_publications: list) -> dict:
     """
-    Build a title-based cache for DOI, PDF, image, pages, and scholar metadata.
+    Build a title-based cache for DOI, PDF, image, attachment, pages, and scholar metadata.
     """
     old_data = {}
 
@@ -218,6 +220,88 @@ def normalise_local_image_path(image: str) -> str:
     return image
 
 
+def normalise_local_attachment_path(file_path: str) -> str:
+    """
+    Normalise local publication attachment paths.
+
+    Uploaded attachment files live in attachments/publications/. If only a
+    filename is stored, this function expands it to that folder.
+    """
+    if not file_path:
+        return ""
+
+    file_path = str(file_path).strip()
+
+    if not file_path:
+        return ""
+
+    if (
+        file_path.startswith("http://")
+        or file_path.startswith("https://")
+        or file_path.startswith("./")
+        or file_path.startswith("/")
+        or file_path.startswith("attachments/")
+    ):
+        return file_path
+
+    return f"{PUBLICATION_ATTACHMENTS_DIR}/{file_path}"
+
+
+def normalise_attachment_item(attachment, index: int = 0, total: int = 1) -> dict:
+    """
+    Convert a string or object attachment into the website JSON format.
+    """
+    if isinstance(attachment, str):
+        file_path = normalise_local_attachment_path(attachment)
+        label = f"Attachment {index + 1}" if total > 1 else "Attachment"
+    elif isinstance(attachment, dict):
+        file_path = normalise_local_attachment_path(
+            attachment.get("file")
+            or attachment.get("path")
+            or attachment.get("url")
+            or attachment.get("href")
+            or ""
+        )
+        label = str(
+            attachment.get("label")
+            or attachment.get("name")
+            or attachment.get("title")
+            or ""
+        ).strip()
+    else:
+        return {}
+
+    if not file_path:
+        return {}
+
+    if not label:
+        label = f"Attachment {index + 1}" if total > 1 else "Attachment"
+
+    return {
+        "label": label,
+        "file": file_path,
+    }
+
+
+def normalise_attachments(raw_attachments) -> list:
+    """
+    Normalise a publication's existing attachments.
+    """
+    if not raw_attachments:
+        return []
+
+    attachments = raw_attachments if isinstance(raw_attachments, list) else [raw_attachments]
+    normalised = []
+
+    for index, attachment in enumerate(attachments):
+        item = normalise_attachment_item(attachment, index, len(attachments))
+
+        if item:
+            normalised.append(item)
+
+    return normalised
+
+
 def scan_papers_folder(papers_dir: str = PAPERS_DIR) -> list:
     """
     Scan the papers folder and return all PDF files.
@@ -275,6 +359,48 @@ def scan_publication_images_folder(images_dir: str = PUBLICATION_IMAGES_DIR) -> 
 
     print(f"✅ Found {len(image_files)} publication image file(s) in {images_dir}/.")
     return image_files
+
+
+def make_attachment_label(filename: str) -> str:
+    """
+    Create a readable label from an attachment filename.
+    """
+    label = os.path.splitext(os.path.basename(filename))[0]
+    label = label.replace("_", " ").replace("-", " ")
+    label = re.sub(r"\s+", " ", label).strip()
+    return label or "Attachment"
+
+
+def scan_publication_attachments_folder(attachments_dir: str = PUBLICATION_ATTACHMENTS_DIR) -> list:
+    """
+    Scan the local uploaded publication-attachment folder.
+
+    The folder is created if it does not already exist. Hidden files and this
+    folder's README are ignored.
+    """
+    os.makedirs(attachments_dir, exist_ok=True)
+
+    attachment_files = []
+
+    for filename in os.listdir(attachments_dir):
+        path = os.path.join(attachments_dir, filename)
+
+        if (
+            filename.startswith(".")
+            or filename.lower() == "readme.md"
+            or not os.path.isfile(path)
+        ):
+            continue
+
+        attachment_files.append({
+            "filename": filename,
+            "path": f"{attachments_dir}/{filename}",
+            "key": normalise_filename_key(filename),
+            "label": make_attachment_label(filename),
+        })
+
+    print(f"✅ Found {len(attachment_files)} publication attachment file(s) in {attachments_dir}/.")
+    return attachment_files
 
 
 def similarity(a: str, b: str) -> float:
@@ -370,6 +496,64 @@ def find_matching_image(title: str, image_files: list) -> str:
     return ""
 
 
+def find_matching_attachments(title: str, attachment_files: list) -> list:
+    """
+    Find locally uploaded attachments for a publication title.
+
+    Multiple exact filename matches are allowed. If there are no exact matches,
+    a single high-confidence fuzzy match is used.
+    """
+    title_key = normalise_title_key(title)
+
+    if not title_key or not attachment_files:
+        return []
+
+    exact_matches = []
+    best_attachment = None
+    best_score = 0.0
+
+    for attachment in attachment_files:
+        attachment_key = attachment.get("key", "")
+
+        if not attachment_key:
+            continue
+
+        is_exact_match = (
+            title_key in attachment_key
+            or (len(attachment_key) >= 18 and attachment_key in title_key)
+        )
+
+        if is_exact_match:
+            exact_matches.append({
+                "label": attachment.get("label", "Attachment"),
+                "file": attachment.get("path", ""),
+            })
+            continue
+
+        score = similarity(title_key, attachment_key)
+
+        if score > best_score:
+            best_score = score
+            best_attachment = attachment
+
+    if exact_matches:
+        print(f"📎 Found {len(exact_matches)} attachment(s) for '{title}'.")
+        return exact_matches
+
+    if best_attachment and best_score >= ATTACHMENT_MATCH_THRESHOLD:
+        print(
+            f"📎 Fuzzy attachment match for '{title}': "
+            f"{best_attachment.get('path', '')} | score={best_score:.2f}"
+        )
+        return [{
+            "label": best_attachment.get("label", "Attachment"),
+            "file": best_attachment.get("path", ""),
+        }]
+
+    print(f"⚠️ No attachment match for '{title}'. Best score={best_score:.2f}")
+    return []
+
+
 def fetch_doi_from_crossref(title: str, authors: str = "", year: str = "") -> str:
     """
     Fetch DOI from CrossRef using title, author, and year.
@@ -462,6 +646,7 @@ def normalise_publication(
     old_data: dict,
     pdf_files: list,
     image_files: list,
+    attachment_files: list,
     index: int,
     total: int
 ) -> dict:
@@ -471,6 +656,7 @@ def normalise_publication(
     Important:
     - The local PDF path is automatically matched from the papers/ folder.
     - The local image path is automatically matched from images/publications/.
+    - Local attachments are automatically matched from attachments/publications/.
     - If automatic matching fails, existing PDF path is preserved.
     - The Google Scholar link is stored in the 'scholar' field.
     - The 'pdf' field is reserved only for local or direct PDF links.
@@ -493,11 +679,16 @@ def normalise_publication(
     old_scholar = str(old_pub.get("scholar", "")).strip()
     old_pages = str(old_pub.get("pages", "")).strip()
     old_image = normalise_local_image_path(str(old_pub.get("image", "")).strip())
+    old_attachments = normalise_attachments(
+        old_pub.get("attachments") or old_pub.get("attachment")
+    )
 
     matched_pdf = find_matching_pdf(title, pdf_files)
     pdf_path = matched_pdf or old_pdf
     matched_image = find_matching_image(title, image_files)
     image_path = matched_image or old_image
+    matched_attachments = find_matching_attachments(title, attachment_files)
+    attachments = matched_attachments or old_attachments
 
     if old_doi:
         doi = old_doi
@@ -517,6 +708,7 @@ def normalise_publication(
         "doi": doi,
         "pdf": pdf_path,
         "image": image_path,
+        "attachments": attachments,
         "scholar": scholar_link or old_scholar,
     }
 
@@ -556,6 +748,7 @@ def main():
 
     pdf_files = scan_papers_folder(PAPERS_DIR)
     image_files = scan_publication_images_folder(PUBLICATION_IMAGES_DIR)
+    attachment_files = scan_publication_attachments_folder(PUBLICATION_ATTACHMENTS_DIR)
     articles = fetch_articles_from_serpapi(scholar_id)
 
     publications = []
@@ -566,6 +759,7 @@ def main():
             old_data=old_data,
             pdf_files=pdf_files,
             image_files=image_files,
+            attachment_files=attachment_files,
             index=i,
             total=len(articles),
         )

@@ -526,6 +526,73 @@
       return `papers/${cleanPDF}`;
     }
 
+    function normaliseAttachmentPath(file) {
+      if (!file) return "";
+
+      const cleanFile = String(file).trim();
+
+      if (!cleanFile) return "";
+
+      if (
+        cleanFile.startsWith("http://") ||
+        cleanFile.startsWith("https://") ||
+        cleanFile.startsWith("./") ||
+        cleanFile.startsWith("/") ||
+        cleanFile.startsWith("attachments/")
+      ) {
+        return cleanFile;
+      }
+
+      return `attachments/publications/${cleanFile}`;
+    }
+
+    function getAttachmentFile(attachment) {
+      if (!attachment) return "";
+
+      if (typeof attachment === "string") {
+        return normaliseAttachmentPath(attachment);
+      }
+
+      return normaliseAttachmentPath(
+        attachment.file ||
+        attachment.path ||
+        attachment.url ||
+        attachment.href ||
+        ""
+      );
+    }
+
+    function getAttachmentLabel(attachment, index, total) {
+      if (attachment && typeof attachment === "object") {
+        const label = attachment.label || attachment.name || attachment.title;
+
+        if (label && String(label).trim()) {
+          return String(label).trim();
+        }
+      }
+
+      return total > 1 ? `Attachment ${index + 1}` : "Attachment";
+    }
+
+    function getPublicationAttachments(pub) {
+      const rawAttachments = Array.isArray(pub.attachments)
+        ? pub.attachments
+        : (pub.attachment ? [pub.attachment] : []);
+
+      return rawAttachments
+        .map((attachment, index) => {
+          const href = getAttachmentFile(attachment);
+
+          if (!href) return null;
+
+          return {
+            href,
+            label: getAttachmentLabel(attachment, index, rawAttachments.length),
+          };
+        })
+        .filter(Boolean);
+    }
+
     function isPDFLink(url) {
       return typeof url === "string" && url.toLowerCase().endsWith(".pdf");
     }
@@ -603,6 +670,14 @@
           </a>
         `);
       }
+
+      getPublicationAttachments(pub).forEach(attachment => {
+        links.push(`
+          <a href="${escapeHTML(attachment.href)}" target="_blank" rel="noopener noreferrer" download>
+            <i class="fa-solid fa-paperclip"></i> ${escapeHTML(attachment.label)}
+          </a>
+        `);
+      });
 
       return links.length ? `<div class="publication-links">${links.join("")}</div>` : "";
     }

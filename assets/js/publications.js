@@ -30,6 +30,46 @@ function normalisePDFPath(pdf) {
   return clean.startsWith("papers/") ? clean : `papers/${clean}`;
 }
 
+function normaliseAttachmentPath(file) {
+  if (!file) return "";
+  const clean = String(file).trim();
+  if (!clean) return "";
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("./") || clean.startsWith("/") || clean.startsWith("attachments/")) return clean;
+  return `attachments/publications/${clean}`;
+}
+
+function getAttachmentFile(attachment) {
+  if (!attachment) return "";
+  if (typeof attachment === "string") return normaliseAttachmentPath(attachment);
+  return normaliseAttachmentPath(attachment.file || attachment.path || attachment.url || attachment.href || "");
+}
+
+function getAttachmentLabel(attachment, index, total) {
+  if (attachment && typeof attachment === "object") {
+    const label = attachment.label || attachment.name || attachment.title;
+    if (label && String(label).trim()) return String(label).trim();
+  }
+
+  return total > 1 ? `Attachment ${index + 1}` : "Attachment";
+}
+
+function getPublicationAttachments(pub) {
+  const rawAttachments = Array.isArray(pub.attachments)
+    ? pub.attachments
+    : (pub.attachment ? [pub.attachment] : []);
+
+  return rawAttachments
+    .map((attachment, index) => {
+      const href = getAttachmentFile(attachment);
+      if (!href) return null;
+      return {
+        href,
+        label: getAttachmentLabel(attachment, index, rawAttachments.length),
+      };
+    })
+    .filter(Boolean);
+}
+
 function normalisePublicationImage(image) {
   if (!image) return "";
   const clean = String(image).trim();
@@ -159,6 +199,7 @@ function renderPublications(data) {
             <div class="publication-links">
               ${doiURL ? `<a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> DOI</a>` : ""}
               ${pdfURL ? `<a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-file-pdf"></i> PDF</a>` : ""}
+              ${getPublicationAttachments(pub).map(attachment => `<a href="${escapeHTML(attachment.href)}" target="_blank" rel="noopener noreferrer" download><i class="fa-solid fa-paperclip"></i> ${escapeHTML(attachment.label)}</a>`).join("")}
               ${citations}
             </div>
           </div>
