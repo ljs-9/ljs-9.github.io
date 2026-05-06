@@ -16,7 +16,7 @@ You can also manually edit `data/publications.json`:
 ```json
 "attachments": [
   {
-    "label": "Supplementary Data",
+    "label": "Supplementary",
     "file": "attachments/publications/example.xlsx"
   }
 ]

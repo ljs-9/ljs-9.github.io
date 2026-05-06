@@ -45,7 +45,7 @@ function getAttachmentFile(attachment) {
 }
 
 function getAttachmentLabel() {
-  return "Attachment";
+  return "Supplementary";
 }
 
 function getPublicationAttachments(pub) {

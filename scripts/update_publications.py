@@ -253,7 +253,7 @@ def normalise_attachment_item(attachment, index: int = 0, total: int = 1) -> dic
     """
     if isinstance(attachment, str):
         file_path = normalise_local_attachment_path(attachment)
-        label = f"Attachment {index + 1}" if total > 1 else "Attachment"
+        label = f"Supplementary {index + 1}" if total > 1 else "Supplementary"
     elif isinstance(attachment, dict):
         file_path = normalise_local_attachment_path(
             attachment.get("file")
@@ -275,7 +275,7 @@ def normalise_attachment_item(attachment, index: int = 0, total: int = 1) -> dic
         return {}
 
     if not label:
-        label = f"Attachment {index + 1}" if total > 1 else "Attachment"
+        label = f"Supplementary {index + 1}" if total > 1 else "Supplementary"
 
     return {
         "label": label,
@@ -365,7 +365,7 @@ def make_attachment_label(filename: str) -> str:
     """
     Create a website label for an attachment.
     """
-    return "Attachment"
+    return "Supplementary"
 
 
 def scan_publication_attachments_folder(attachments_dir: str = PUBLICATION_ATTACHMENTS_DIR) -> list:
@@ -522,7 +522,7 @@ def find_matching_attachments(title: str, attachment_files: list) -> list:
 
         if is_exact_match:
             exact_matches.append({
-                "label": attachment.get("label", "Attachment"),
+                "label": attachment.get("label", "Supplementary"),
                 "file": attachment.get("path", ""),
             })
             continue
@@ -543,7 +543,7 @@ def find_matching_attachments(title: str, attachment_files: list) -> list:
             f"{best_attachment.get('path', '')} | score={best_score:.2f}"
         )
         return [{
-            "label": best_attachment.get("label", "Attachment"),
+            "label": best_attachment.get("label", "Supplementary"),
             "file": best_attachment.get("path", ""),
         }]
 
