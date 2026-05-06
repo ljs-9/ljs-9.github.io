@@ -363,12 +363,9 @@ def scan_publication_images_folder(images_dir: str = PUBLICATION_IMAGES_DIR) -> 
 
 def make_attachment_label(filename: str) -> str:
     """
-    Create a readable label from an attachment filename.
+    Create a website label for an attachment.
     """
-    label = os.path.splitext(os.path.basename(filename))[0]
-    label = label.replace("_", " ").replace("-", " ")
-    label = re.sub(r"\s+", " ", label).strip()
-    return label or "Attachment"
+    return "Attachment"
 
 
 def scan_publication_attachments_folder(attachments_dir: str = PUBLICATION_ATTACHMENTS_DIR) -> list:

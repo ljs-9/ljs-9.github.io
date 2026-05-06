@@ -44,13 +44,8 @@ function getAttachmentFile(attachment) {
   return normaliseAttachmentPath(attachment.file || attachment.path || attachment.url || attachment.href || "");
 }
 
-function getAttachmentLabel(attachment, index, total) {
-  if (attachment && typeof attachment === "object") {
-    const label = attachment.label || attachment.name || attachment.title;
-    if (label && String(label).trim()) return String(label).trim();
-  }
-
-  return total > 1 ? `Attachment ${index + 1}` : "Attachment";
+function getAttachmentLabel() {
+  return "Attachment";
 }
 
 function getPublicationAttachments(pub) {
@@ -64,7 +59,7 @@ function getPublicationAttachments(pub) {
       if (!href) return null;
       return {
         href,
-        label: getAttachmentLabel(attachment, index, rawAttachments.length),
+        label: getAttachmentLabel(),
       };
     })
     .filter(Boolean);
