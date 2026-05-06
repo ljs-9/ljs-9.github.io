@@ -129,7 +129,6 @@ function renderPublications(data) {
     grouped[year].forEach(pub => {
       const doiURL = normaliseDOI(pub.doi);
       const pdfURL = normalisePDFPath(pub.pdf);
-      const scholarURL = pub.scholar || "";
       const imageURL = getPublicationImage(pub);
       const citations = Number(pub.citations) > 0 ? `<span class="publication-meta">Citations: ${Number(pub.citations)}</span>` : "";
       html += `
@@ -160,7 +159,6 @@ function renderPublications(data) {
             <div class="publication-links">
               ${doiURL ? `<a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> DOI</a>` : ""}
               ${pdfURL ? `<a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-file-pdf"></i> PDF</a>` : ""}
-              ${scholarURL ? `<a href="${escapeHTML(scholarURL)}" target="_blank" rel="noopener noreferrer"><i class="ai ai-google-scholar"></i> Scholar</a>` : ""}
               ${citations}
             </div>
           </div>
