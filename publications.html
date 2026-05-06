@@ -211,7 +211,52 @@
       width: 100%;
     }
 
-    .publication-thumb img {
+    .publication-thumb-button {
+      width: 100%;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      display: block;
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+    }
+
+    .publication-thumb-button::after {
+      content: "\f00e";
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      background: rgba(23, 32, 51, 0.68);
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      font-size: 0.9rem;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .publication-thumb-button:hover::after,
+    .publication-thumb-button:focus-visible::after {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .publication-thumb-button:focus-visible {
+      outline: 3px solid rgba(47, 111, 179, 0.35);
+      outline-offset: 3px;
+    }
+
+    .publication-thumb-button img {
       width: 100%;
       aspect-ratio: 4 / 3;
       object-fit: cover;
@@ -257,6 +302,82 @@
       font-size: 0.88rem;
     }
 
+    body.lightbox-open {
+      overflow: hidden;
+    }
+
+    .image-lightbox[hidden] {
+      display: none;
+    }
+
+    .image-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: grid;
+      place-items: center;
+      padding: 28px;
+    }
+
+    .lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      border: 0;
+      padding: 0;
+      cursor: zoom-out;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .lightbox-panel {
+      width: min(1080px, 94vw);
+      max-height: 92vh;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 10px;
+    }
+
+    .lightbox-panel img {
+      width: 100%;
+      max-height: calc(92vh - 64px);
+      object-fit: contain;
+      display: block;
+      border-radius: 10px;
+      background: #ffffff;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
+    }
+
+    .lightbox-panel figcaption {
+      color: #ffffff;
+      text-align: center;
+      font-size: 0.95rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -16px;
+      right: -16px;
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #172033;
+      background: #ffffff;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+      cursor: pointer;
+    }
+
+    .lightbox-close:focus-visible {
+      outline: 3px solid rgba(255, 255, 255, 0.65);
+      outline-offset: 3px;
+    }
+
     footer {
       width: 100%;
       max-width: 960px;
@@ -275,6 +396,15 @@
 
       .publication-thumb {
         max-width: 280px;
+      }
+
+      .image-lightbox {
+        padding: 18px;
+      }
+
+      .lightbox-close {
+        top: -12px;
+        right: -8px;
       }
     }
 
@@ -326,6 +456,17 @@
     </footer>
   </div>
 
+  <div class="image-lightbox" id="publication-lightbox" role="dialog" aria-label="Publication image preview" aria-hidden="true" hidden>
+    <button class="lightbox-backdrop" type="button" data-lightbox-close aria-label="Close image preview"></button>
+    <figure class="lightbox-panel">
+      <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close image preview">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <img id="lightbox-image" alt="" />
+      <figcaption id="lightbox-caption"></figcaption>
+    </figure>
+  </div>
+
   <script>
     const PUBLICATIONS_URL = "./data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
@@ -333,6 +474,10 @@
 
     const publicationsContainer = document.getElementById("publications-container");
     const currentYear = document.getElementById("current-year");
+    const publicationLightbox = document.getElementById("publication-lightbox");
+    const lightboxImage = document.getElementById("lightbox-image");
+    const lightboxCaption = document.getElementById("lightbox-caption");
+    const lightboxCloseButton = publicationLightbox.querySelector(".lightbox-close");
 
     currentYear.textContent = new Date().getFullYear();
 
@@ -417,6 +562,25 @@
       }
 
       return DEFAULT_PUBLICATION_IMAGE;
+    }
+
+    function openPublicationImage(src, alt) {
+      if (!src) return;
+
+      lightboxImage.src = src;
+      lightboxImage.alt = alt || "Publication image";
+      lightboxCaption.textContent = alt || "";
+      publicationLightbox.hidden = false;
+      publicationLightbox.setAttribute("aria-hidden", "false");
+      document.body.classList.add("lightbox-open");
+      lightboxCloseButton.focus();
+    }
+
+    function closePublicationImage() {
+      publicationLightbox.hidden = true;
+      publicationLightbox.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("lightbox-open");
+      lightboxImage.removeAttribute("src");
     }
 
     function formatPublicationLinks(pub) {
@@ -520,12 +684,21 @@
           html += `
             <li class="publication-item">
               <div class="publication-thumb">
-                <img
-                  src="${escapeHTML(imageURL)}"
-                  alt="${title}"
-                  loading="lazy"
-                  onerror="this.onerror=null;this.src='${DEFAULT_PUBLICATION_IMAGE}';"
-                />
+                <button
+                  class="publication-thumb-button"
+                  type="button"
+                  data-image-preview
+                  data-image-src="${escapeHTML(imageURL)}"
+                  data-image-alt="${title}"
+                  aria-label="View larger image for ${title}"
+                >
+                  <img
+                    src="${escapeHTML(imageURL)}"
+                    alt="${title}"
+                    loading="lazy"
+                    onerror="this.onerror=null;this.src='${DEFAULT_PUBLICATION_IMAGE}';this.closest('[data-image-preview]').dataset.imageSrc='${DEFAULT_PUBLICATION_IMAGE}';"
+                  />
+                </button>
               </div>
 
               <div class="publication-content">
@@ -547,6 +720,26 @@
 
       publicationsContainer.innerHTML = html;
     }
+
+    publicationsContainer.addEventListener("click", event => {
+      const trigger = event.target.closest("[data-image-preview]");
+
+      if (!trigger) return;
+
+      openPublicationImage(trigger.dataset.imageSrc, trigger.dataset.imageAlt);
+    });
+
+    publicationLightbox.addEventListener("click", event => {
+      if (event.target.closest("[data-lightbox-close]")) {
+        closePublicationImage();
+      }
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !publicationLightbox.hidden) {
+        closePublicationImage();
+      }
+    });
 
     function readCachedPublications() {
       try {

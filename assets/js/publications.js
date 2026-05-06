@@ -1,6 +1,9 @@
 const PUBLICATIONS_URL = "./data/publications.json";
 const DEFAULT_PUBLICATION_IMAGE = "images/publications/default.svg";
 const container = document.getElementById("publications-container");
+let publicationLightbox = null;
+let lightboxImage = null;
+let lightboxCaption = null;
 
 function escapeHTML(value = "") {
   return String(value)
@@ -42,6 +45,60 @@ function getPublicationImage(pub) {
   return DEFAULT_PUBLICATION_IMAGE;
 }
 
+function ensureLightbox() {
+  if (publicationLightbox) return;
+
+  publicationLightbox = document.createElement("div");
+  publicationLightbox.className = "image-lightbox";
+  publicationLightbox.id = "publication-lightbox";
+  publicationLightbox.setAttribute("role", "dialog");
+  publicationLightbox.setAttribute("aria-label", "Publication image preview");
+  publicationLightbox.setAttribute("aria-hidden", "true");
+  publicationLightbox.hidden = true;
+  publicationLightbox.innerHTML = `
+    <button class="lightbox-backdrop" type="button" data-lightbox-close aria-label="Close image preview"></button>
+    <figure class="lightbox-panel">
+      <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close image preview">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <img id="lightbox-image" alt="" />
+      <figcaption id="lightbox-caption"></figcaption>
+    </figure>
+  `;
+
+  document.body.appendChild(publicationLightbox);
+  lightboxImage = publicationLightbox.querySelector("#lightbox-image");
+  lightboxCaption = publicationLightbox.querySelector("#lightbox-caption");
+
+  publicationLightbox.addEventListener("click", event => {
+    if (event.target.closest("[data-lightbox-close]")) {
+      closePublicationImage();
+    }
+  });
+}
+
+function openPublicationImage(src, alt) {
+  if (!src) return;
+
+  ensureLightbox();
+  lightboxImage.src = src;
+  lightboxImage.alt = alt || "Publication image";
+  lightboxCaption.textContent = alt || "";
+  publicationLightbox.hidden = false;
+  publicationLightbox.setAttribute("aria-hidden", "false");
+  document.body.classList.add("lightbox-open");
+  publicationLightbox.querySelector(".lightbox-close").focus();
+}
+
+function closePublicationImage() {
+  if (!publicationLightbox) return;
+
+  publicationLightbox.hidden = true;
+  publicationLightbox.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("lightbox-open");
+  if (lightboxImage) lightboxImage.removeAttribute("src");
+}
+
 function sortYearsDescending(years) {
   return years.sort((a, b) => {
     const yearA = parseInt(a, 10);
@@ -78,12 +135,21 @@ function renderPublications(data) {
       html += `
         <li class="publication-item">
           <div class="publication-thumb">
-            <img
-              src="${escapeHTML(imageURL)}"
-              alt="${escapeHTML(pub.title || "Publication image")}"
-              loading="lazy"
-              onerror="this.onerror=null;this.src='${DEFAULT_PUBLICATION_IMAGE}';"
-            />
+            <button
+              class="publication-thumb-button"
+              type="button"
+              data-image-preview
+              data-image-src="${escapeHTML(imageURL)}"
+              data-image-alt="${escapeHTML(pub.title || "Publication image")}"
+              aria-label="View larger image for ${escapeHTML(pub.title || "Publication image")}"
+            >
+              <img
+                src="${escapeHTML(imageURL)}"
+                alt="${escapeHTML(pub.title || "Publication image")}"
+                loading="lazy"
+                onerror="this.onerror=null;this.src='${DEFAULT_PUBLICATION_IMAGE}';this.closest('[data-image-preview]').dataset.imageSrc='${DEFAULT_PUBLICATION_IMAGE}';"
+              />
+            </button>
           </div>
           <div class="publication-content">
             <div>
@@ -105,6 +171,20 @@ function renderPublications(data) {
   });
   container.innerHTML = html;
 }
+
+container.addEventListener("click", event => {
+  const trigger = event.target.closest("[data-image-preview]");
+
+  if (!trigger) return;
+
+  openPublicationImage(trigger.dataset.imageSrc, trigger.dataset.imageAlt);
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape" && publicationLightbox && !publicationLightbox.hidden) {
+    closePublicationImage();
+  }
+});
 
 fetch(PUBLICATIONS_URL, { cache: "no-store" })
   .then(response => {
