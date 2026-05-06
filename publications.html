@@ -604,15 +604,6 @@
         `);
       }
 
-      const scholarURL = pub.scholar ? String(pub.scholar).trim() : "";
-      if (scholarURL) {
-        links.push(`
-          <a href="${escapeHTML(scholarURL)}" target="_blank" rel="noopener noreferrer">
-            <i class="ai ai-google-scholar"></i> Scholar
-          </a>
-        `);
-      }
-
       return links.length ? `<div class="publication-links">${links.join("")}</div>` : "";
     }
 
