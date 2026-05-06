@@ -1,6 +1,8 @@
 {
   "name": "Shun Li",
   "chineseName": "李顺",
+  "metaDescription": "Personal academic homepage of Shun Li, Ph.D. in Financial Management. Research interests include financial economics, behavioural finance, asset pricing, investor sentiment, geopolitical risk, and volatility forecasting.",
+  "googleScholarId": "UdIP7WoAAAAJ",
   "photo": "images/li.png",
   "lifePhoto": "images/life.jpg",
   "positions": [
@@ -10,6 +12,34 @@
   ],
   "email": "lijiushun@dankook.ac.kr",
   "address": "Yongin, Gyeonggi-do, Republic of Korea",
+  "mapQuery": "Dankook University, Yongin, Gyeonggi-do, Republic of Korea",
+  "links": [
+    {
+      "label": "ORCID",
+      "url": "https://orcid.org/0009-0001-7167-7479",
+      "icon": "ai ai-orcid"
+    },
+    {
+      "label": "Scopus",
+      "url": "https://www.scopus.com/authid/detail.uri?authorId=59491989200",
+      "icon": "ai ai-scopus"
+    },
+    {
+      "label": "Google Scholar",
+      "url": "https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en",
+      "icon": "ai ai-google-scholar"
+    },
+    {
+      "label": "Web of Science",
+      "url": "https://www.webofscience.com/wos/author/record/LUZ-1556-2024",
+      "icon": "ai ai-clarivate"
+    },
+    {
+      "label": "ResearchGate",
+      "url": "https://www.researchgate.net/profile/Shun-Li-54",
+      "icon": "ai ai-researchgate"
+    }
+  ],
   "about": [
     "My research focuses on financial economics, behavioural finance, asset pricing, and volatility forecasting.",
     "I am particularly interested in how geopolitical risk, policy uncertainty, investor sentiment, ESG-related uncertainty, and macro-financial conditions shape long-term volatility in financial markets."

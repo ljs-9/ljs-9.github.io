@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title id="title">Publication image placeholder</title>
+  <desc id="desc">A neutral academic publication placeholder.</desc>
+  <rect width="800" height="600" fill="#f5f8fc"/>
+  <rect x="78" y="72" width="644" height="456" rx="28" fill="#ffffff" stroke="#dbe4ee" stroke-width="4"/>
+  <rect x="140" y="138" width="300" height="18" rx="9" fill="#2f6fb3" opacity="0.72"/>
+  <rect x="140" y="186" width="520" height="14" rx="7" fill="#8aa8c6" opacity="0.42"/>
+  <rect x="140" y="222" width="470" height="14" rx="7" fill="#8aa8c6" opacity="0.34"/>
+  <rect x="140" y="258" width="385" height="14" rx="7" fill="#8aa8c6" opacity="0.28"/>
+  <rect x="140" y="332" width="190" height="108" rx="12" fill="#e8f1fb" stroke="#c9d8e8" stroke-width="3"/>
+  <path d="M370 438h288" stroke="#2f6fb3" stroke-width="8" stroke-linecap="round" opacity="0.62"/>
+  <path d="M370 386h232" stroke="#8aa8c6" stroke-width="8" stroke-linecap="round" opacity="0.48"/>
+  <path d="M370 412h260" stroke="#8aa8c6" stroke-width="8" stroke-linecap="round" opacity="0.34"/>
+  <circle cx="235" cy="386" r="34" fill="#2f6fb3" opacity="0.68"/>
+</svg>

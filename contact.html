@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Contact | Shun Li</title>
+  <title>Contact</title>
 
-  <meta name="description" content="Contact information of Shun Li." />
-  <meta name="author" content="Shun Li" />
+  <meta name="description" content="Contact information." />
+  <meta name="author" content="" />
 
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
 
@@ -190,6 +190,33 @@
       margin-bottom: 8px;
     }
 
+    .map-frame {
+      width: 100%;
+      margin-top: 18px;
+      border: 1px solid rgba(120, 140, 170, 0.14);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.56);
+      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.045);
+    }
+
+    .map-frame iframe {
+      width: 100%;
+      height: 360px;
+      display: block;
+      border: 0;
+    }
+
+    .map-actions {
+      margin-top: 10px;
+      font-size: 0.92rem;
+    }
+
+    .status-message {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
     footer {
       width: 100%;
       max-width: 920px;
@@ -239,33 +266,115 @@
 
         <p>
           <strong>Email:</strong>
-          <a href="mailto:lijiushun@dankook.ac.kr">lijiushun@dankook.ac.kr</a>
+          <span id="contact-email" class="status-message">Loading...</span>
         </p>
 
         <p>
           <strong>Location:</strong>
-          Yongin, Gyeonggi-do, Republic of Korea
+          <span id="contact-address" class="status-message">Loading...</span>
         </p>
 
-        <h3>Academic Profiles</h3>
-
-        <ul>
-          <li><a href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer">ORCID</a></li>
-          <li><a href="https://www.scopus.com/authid/detail.uri?authorId=59491989200" target="_blank" rel="noopener noreferrer">Scopus</a></li>
-          <li><a href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a></li>
-          <li><a href="https://www.webofscience.com/wos/author/record/LUZ-1556-2024" target="_blank" rel="noopener noreferrer">Web of Science</a></li>
-          <li><a href="https://www.researchgate.net/profile/Shun-Li-54" target="_blank" rel="noopener noreferrer">ResearchGate</a></li>
-        </ul>
+        <div id="map-container"></div>
       </section>
     </main>
 
     <footer>
-      &copy; <span id="current-year"></span> Shun Li. All rights reserved.
+      &copy; <span id="current-year"></span> <span id="footer-name"></span>. All rights reserved.
     </footer>
   </div>
 
   <script>
-    document.getElementById("current-year").textContent = new Date().getFullYear();
+    const PROFILE_URL = "./data/profile.json";
+
+    const contactEmail = document.getElementById("contact-email");
+    const contactAddress = document.getElementById("contact-address");
+    const mapContainer = document.getElementById("map-container");
+    const currentYear = document.getElementById("current-year");
+    const footerName = document.getElementById("footer-name");
+
+    currentYear.textContent = new Date().getFullYear();
+
+    function escapeHTML(value = "") {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderMap(query, label) {
+      if (!query) {
+        mapContainer.innerHTML = "";
+        return;
+      }
+
+      const encodedQuery = encodeURIComponent(query);
+      const safeLabel = escapeHTML(label || query);
+      const mapURL = `https://www.google.com/maps?q=${encodedQuery}&output=embed`;
+      const externalURL = `https://www.google.com/maps/search/?api=1&query=${encodedQuery}`;
+
+      mapContainer.innerHTML = `
+        <div class="map-frame">
+          <iframe
+            title="Google Map for ${safeLabel}"
+            src="${mapURL}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+          ></iframe>
+        </div>
+        <p class="map-actions">
+          <a href="${externalURL}" target="_blank" rel="noopener noreferrer">
+            Open in Google Maps
+          </a>
+        </p>
+      `;
+    }
+
+    async function loadProfile() {
+      try {
+        const response = await fetch(PROFILE_URL, { cache: "no-store" });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error ${response.status}`);
+        }
+
+        const profile = await response.json();
+        const name = profile.name || "Personal Homepage";
+        const email = profile.email || "";
+        const address = profile.address || "";
+        const mapQuery = profile.mapQuery || address;
+
+        document.title = `Contact | ${name}`;
+        footerName.textContent = name;
+
+        const authorMeta = document.querySelector('meta[name="author"]');
+        const descriptionMeta = document.querySelector('meta[name="description"]');
+
+        if (authorMeta) authorMeta.setAttribute("content", name);
+        if (descriptionMeta) descriptionMeta.setAttribute("content", `Contact information of ${name}.`);
+
+        contactEmail.classList.remove("status-message");
+        contactAddress.classList.remove("status-message");
+
+        contactEmail.innerHTML = email
+          ? `<a href="mailto:${escapeHTML(email)}">${escapeHTML(email)}</a>`
+          : `<span class="status-message">Email unavailable.</span>`;
+
+        contactAddress.textContent = address || "Location unavailable.";
+        renderMap(mapQuery, address);
+      } catch (error) {
+        console.error("Error loading profile:", error);
+
+        footerName.textContent = "Personal Homepage";
+        contactEmail.textContent = "Email unavailable.";
+        contactAddress.textContent = "Location unavailable.";
+        mapContainer.innerHTML = "";
+      }
+    }
+
+    loadProfile();
   </script>
 </body>
 </html>

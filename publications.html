@@ -329,7 +329,7 @@
   <script>
     const PUBLICATIONS_URL = "./data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
-    const DEFAULT_PUBLICATION_IMAGE = "images/publications/default.jpg";
+    const DEFAULT_PUBLICATION_IMAGE = "images/publications/default.svg";
 
     const publicationsContainer = document.getElementById("publications-container");
     const currentYear = document.getElementById("current-year");
@@ -385,9 +385,31 @@
       return typeof url === "string" && url.toLowerCase().endsWith(".pdf");
     }
 
+    function normalisePublicationImage(image) {
+      if (!image) return "";
+
+      const cleanImage = String(image).trim();
+
+      if (!cleanImage) return "";
+
+      if (
+        cleanImage.startsWith("http://") ||
+        cleanImage.startsWith("https://") ||
+        cleanImage.startsWith("./") ||
+        cleanImage.startsWith("/") ||
+        cleanImage.startsWith("images/")
+      ) {
+        return cleanImage;
+      }
+
+      return `images/publications/${cleanImage}`;
+    }
+
     function getPublicationImage(pub) {
-      if (pub.image && String(pub.image).trim()) {
-        return String(pub.image).trim();
+      const localImage = normalisePublicationImage(pub.image);
+
+      if (localImage) {
+        return localImage;
       }
 
       if (pub.slug && String(pub.slug).trim()) {

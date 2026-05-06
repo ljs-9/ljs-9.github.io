@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Shun Li</title>
+  <title>Personal Academic Homepage</title>
 
-  <meta name="description" content="Personal academic homepage of Shun Li, Ph.D. in Financial Management. Research interests include financial economics, behavioural finance, asset pricing, investor sentiment, geopolitical risk, and volatility forecasting." />
-  <meta name="author" content="Shun Li" />
+  <meta name="description" content="Personal academic homepage." />
+  <meta name="author" content="" />
 
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet" />
 
@@ -375,7 +375,7 @@
 
 <body>
   <aside class="sidebar">
-    <img id="profile-photo" class="profile-photo" src="images/li.png" alt="Profile photo" />
+    <img id="profile-photo" class="profile-photo" alt="Profile photo" hidden />
 
     <h1 id="profile-name">Loading...</h1>
 
@@ -386,32 +386,7 @@
     <p class="email" id="profile-email"></p>
     <p class="address" id="profile-address"></p>
 
-    <nav class="links" aria-label="Academic profiles">
-      <a href="https://orcid.org/0009-0001-7167-7479" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-orcid"></i>
-        <span>ORCID</span>
-      </a>
-
-      <a href="https://www.scopus.com/authid/detail.uri?authorId=59491989200" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-scopus"></i>
-        <span>Scopus</span>
-      </a>
-
-      <a href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-google-scholar"></i>
-        <span>Google Scholar</span>
-      </a>
-
-      <a href="https://www.webofscience.com/wos/author/record/LUZ-1556-2024" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-clarivate"></i>
-        <span>Web of Science</span>
-      </a>
-
-      <a href="https://www.researchgate.net/profile/Shun-Li-54" target="_blank" rel="noopener noreferrer">
-        <i class="ai ai-researchgate"></i>
-        <span>ResearchGate</span>
-      </a>
-    </nav>
+    <nav class="links" id="profile-links" aria-label="Academic profiles" hidden></nav>
   </aside>
 
   <div class="content">
@@ -456,7 +431,7 @@
     </main>
 
     <footer>
-      &copy; <span id="current-year"></span> <span id="footer-name">Shun Li</span>. All rights reserved.
+      &copy; <span id="current-year"></span> <span id="footer-name"></span>. All rights reserved.
     </footer>
   </div>
 
@@ -468,6 +443,7 @@
     const profilePositions = document.getElementById("profile-positions");
     const profileEmail = document.getElementById("profile-email");
     const profileAddress = document.getElementById("profile-address");
+    const profileLinks = document.getElementById("profile-links");
     const aboutContainer = document.getElementById("about-container");
     const researchList = document.getElementById("research-list");
     const keywordsList = document.getElementById("keywords-list");
@@ -486,6 +462,33 @@
         .replaceAll("'", "&#039;");
     }
 
+    function renderProfileLinks(links = []) {
+      const validLinks = Array.isArray(links)
+        ? links.filter(link => link && link.label && link.url)
+        : [];
+
+      if (validLinks.length === 0) {
+        profileLinks.hidden = true;
+        profileLinks.innerHTML = "";
+        return;
+      }
+
+      profileLinks.innerHTML = validLinks
+        .map(link => {
+          const icon = link.icon ? `<i class="${escapeHTML(link.icon)}"></i>` : "";
+
+          return `
+            <a href="${escapeHTML(link.url)}" target="_blank" rel="noopener noreferrer">
+              ${icon}
+              <span>${escapeHTML(link.label)}</span>
+            </a>
+          `;
+        })
+        .join("");
+
+      profileLinks.hidden = false;
+    }
+
     async function loadProfile() {
       try {
         const response = await fetch(PROFILE_URL, { cache: "no-store" });
@@ -496,15 +499,28 @@
 
         const profile = await response.json();
 
-        const name = profile.name || "Shun Li";
+        const name = profile.name || "Personal Homepage";
         const chineseName = profile.chineseName || "";
-        const photo = profile.photo || "images/li.png";
+        const photo = profile.photo || "";
         const email = profile.email || "";
         const address = profile.address || "";
+        const metaDescription = profile.metaDescription || "Personal academic homepage.";
 
         document.title = `${name} | Personal Academic Homepage`;
 
-        profilePhoto.src = photo;
+        const authorMeta = document.querySelector('meta[name="author"]');
+        const descriptionMeta = document.querySelector('meta[name="description"]');
+
+        if (authorMeta) authorMeta.setAttribute("content", name);
+        if (descriptionMeta) descriptionMeta.setAttribute("content", metaDescription);
+
+        if (photo) {
+          profilePhoto.src = photo;
+          profilePhoto.hidden = false;
+        } else {
+          profilePhoto.hidden = true;
+        }
+
         profilePhoto.alt = `${name} profile photo`;
 
         profileName.innerHTML = `
@@ -535,6 +551,8 @@
             ${escapeHTML(address)}
           `
           : "";
+
+        renderProfileLinks(profile.links);
 
         aboutContainer.innerHTML = Array.isArray(profile.about)
           ? profile.about
@@ -567,7 +585,12 @@
       } catch (error) {
         console.error("Error loading profile:", error);
 
-        profileName.textContent = "Shun Li";
+        profilePhoto.hidden = true;
+        profileName.textContent = "Profile unavailable";
+        footerName.textContent = "Personal Homepage";
+        profileEmail.innerHTML = "";
+        profileAddress.innerHTML = "";
+        renderProfileLinks([]);
 
         profilePositions.innerHTML = `
           <p class="position">Profile information is temporarily unavailable.</p>

@@ -13,26 +13,66 @@ import requests
 # Basic configuration
 # =========================
 
-SCHOLAR_ID = "UdIP7WoAAAAJ"
+PROFILE_PATH = "data/profile.json"
 API_KEY = os.getenv("SERPAPI_KEY")
-
 OUTPUT_PATH = "data/publications.json"
 TEMP_PATH = "data/publications.tmp.json"
 PAPERS_DIR = "papers"
+PUBLICATION_IMAGES_DIR = "images/publications"
+PUBLICATION_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"}
 
 # The threshold controls how strict the PDF-title matching is.
 # 0.72 is usually suitable when PDF filenames are meaningful but not identical to paper titles.
 PDF_MATCH_THRESHOLD = 0.72
-
-SERPAPI_URL = (
-    "https://serpapi.com/search.json"
-    f"?engine=google_scholar_author&author_id={SCHOLAR_ID}&api_key={API_KEY}"
-)
+IMAGE_MATCH_THRESHOLD = 0.72
 
 
 # =========================
 # Utility functions
 # =========================
+
+def load_profile(path: str = PROFILE_PATH) -> dict:
+    """
+    Load site profile metadata.
+
+    The Google Scholar author id is kept in data/profile.json so personal
+    profile changes can be made in one place.
+    """
+    if not os.path.exists(path):
+        return {}
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        return data if isinstance(data, dict) else {}
+
+    except Exception as e:
+        print(f"⚠️ Failed to load profile metadata: {e}")
+        return {}
+
+
+def get_google_scholar_id(profile: dict) -> str:
+    """
+    Resolve the Google Scholar author id from profile.json.
+    """
+    scholar_id = str(profile.get("googleScholarId", "")).strip()
+
+    if scholar_id:
+        return scholar_id
+
+    raise ValueError("❌ Missing googleScholarId in data/profile.json.")
+
+
+def build_serpapi_url(scholar_id: str) -> str:
+    """
+    Build the SerpAPI URL for a Google Scholar author profile.
+    """
+    return (
+        "https://serpapi.com/search.json"
+        f"?engine=google_scholar_author&author_id={scholar_id}&api_key={API_KEY}"
+    )
+
 
 def load_existing_publications(path: str) -> list:
     """
@@ -91,7 +131,7 @@ def normalise_filename_key(filename: str) -> str:
 
 def build_old_data_map(old_publications: list) -> dict:
     """
-    Build a title-based cache for DOI, PDF, pages, and scholar metadata.
+    Build a title-based cache for DOI, PDF, image, pages, and scholar metadata.
     """
     old_data = {}
 
@@ -146,6 +186,38 @@ def normalise_local_pdf_path(pdf: str) -> str:
     return pdf
 
 
+def normalise_local_image_path(image: str) -> str:
+    """
+    Normalise local publication image paths.
+
+    Uploaded publication images live in images/publications/. If only a
+    filename is stored, this function expands it to that folder.
+    """
+    if not image:
+        return ""
+
+    image = str(image).strip()
+
+    if not image:
+        return ""
+
+    if (
+        image.startswith("http://")
+        or image.startswith("https://")
+        or image.startswith("./")
+        or image.startswith("/")
+        or image.startswith("images/")
+    ):
+        return image
+
+    extension = os.path.splitext(image)[1].lower()
+
+    if extension in PUBLICATION_IMAGE_EXTENSIONS:
+        return f"{PUBLICATION_IMAGES_DIR}/{image}"
+
+    return image
+
+
 def scan_papers_folder(papers_dir: str = PAPERS_DIR) -> list:
     """
     Scan the papers folder and return all PDF files.
@@ -176,6 +248,33 @@ def scan_papers_folder(papers_dir: str = PAPERS_DIR) -> list:
 
     print(f"✅ Found {len(pdf_files)} PDF file(s) in {papers_dir}/.")
     return pdf_files
+
+
+def scan_publication_images_folder(images_dir: str = PUBLICATION_IMAGES_DIR) -> list:
+    """
+    Scan the local uploaded publication-image folder.
+
+    The folder is created if it does not already exist. Images are matched to
+    publication titles by filename, so a file named after the paper title works
+    best.
+    """
+    os.makedirs(images_dir, exist_ok=True)
+
+    image_files = []
+
+    for filename in os.listdir(images_dir):
+        extension = os.path.splitext(filename)[1].lower()
+
+        if extension in PUBLICATION_IMAGE_EXTENSIONS and filename != "default.svg":
+            path = f"{images_dir}/{filename}"
+            image_files.append({
+                "filename": filename,
+                "path": path,
+                "key": normalise_filename_key(filename),
+            })
+
+    print(f"✅ Found {len(image_files)} publication image file(s) in {images_dir}/.")
+    return image_files
 
 
 def similarity(a: str, b: str) -> float:
@@ -227,6 +326,47 @@ def find_matching_pdf(title: str, pdf_files: list) -> str:
         return best_path
 
     print(f"⚠️ No PDF match for '{title}'. Best score={best_score:.2f}")
+    return ""
+
+
+def find_matching_image(title: str, image_files: list) -> str:
+    """
+    Find the most likely locally uploaded image for a publication title.
+
+    Matching is intentionally local-only: publication images should be uploaded
+    to images/publications/ rather than fetched from Google Scholar or remote
+    pages.
+    """
+    title_key = normalise_title_key(title)
+
+    if not title_key or not image_files:
+        return ""
+
+    best_path = ""
+    best_score = 0.0
+
+    for image in image_files:
+        image_key = image.get("key", "")
+        image_path = image.get("path", "")
+
+        if not image_key:
+            continue
+
+        if image_key in title_key or title_key in image_key:
+            print(f"🖼️ Exact image match for '{title}': {image_path}")
+            return image_path
+
+        score = similarity(title_key, image_key)
+
+        if score > best_score:
+            best_score = score
+            best_path = image_path
+
+    if best_score >= IMAGE_MATCH_THRESHOLD:
+        print(f"🖼️ Fuzzy image match for '{title}': {best_path} | score={best_score:.2f}")
+        return best_path
+
+    print(f"⚠️ No image match for '{title}'. Best score={best_score:.2f}")
     return ""
 
 
@@ -283,7 +423,7 @@ def fetch_doi_from_crossref(title: str, authors: str = "", year: str = "") -> st
     return ""
 
 
-def fetch_articles_from_serpapi() -> list:
+def fetch_articles_from_serpapi(scholar_id: str) -> list:
     """
     Fetch publications from SerpAPI.
 
@@ -293,9 +433,9 @@ def fetch_articles_from_serpapi() -> list:
     if not API_KEY:
         raise ValueError("❌ Missing SERPAPI_KEY. Please add it as a GitHub Secret.")
 
-    print("Fetching publications from SerpAPI...")
+    print(f"Fetching publications from SerpAPI for Google Scholar id: {scholar_id}")
 
-    response = requests.get(SERPAPI_URL, timeout=30)
+    response = requests.get(build_serpapi_url(scholar_id), timeout=30)
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -321,6 +461,7 @@ def normalise_publication(
     pub: dict,
     old_data: dict,
     pdf_files: list,
+    image_files: list,
     index: int,
     total: int
 ) -> dict:
@@ -329,6 +470,7 @@ def normalise_publication(
 
     Important:
     - The local PDF path is automatically matched from the papers/ folder.
+    - The local image path is automatically matched from images/publications/.
     - If automatic matching fails, existing PDF path is preserved.
     - The Google Scholar link is stored in the 'scholar' field.
     - The 'pdf' field is reserved only for local or direct PDF links.
@@ -350,9 +492,12 @@ def normalise_publication(
     old_pdf = normalise_local_pdf_path(str(old_pub.get("pdf", "")).strip())
     old_scholar = str(old_pub.get("scholar", "")).strip()
     old_pages = str(old_pub.get("pages", "")).strip()
+    old_image = normalise_local_image_path(str(old_pub.get("image", "")).strip())
 
     matched_pdf = find_matching_pdf(title, pdf_files)
     pdf_path = matched_pdf or old_pdf
+    matched_image = find_matching_image(title, image_files)
+    image_path = matched_image or old_image
 
     if old_doi:
         doi = old_doi
@@ -371,6 +516,7 @@ def normalise_publication(
         "citations": citations,
         "doi": doi,
         "pdf": pdf_path,
+        "image": image_path,
         "scholar": scholar_link or old_scholar,
     }
 
@@ -402,11 +548,15 @@ def save_publications_safely(publications: list, output_path: str, temp_path: st
 # =========================
 
 def main():
+    profile = load_profile(PROFILE_PATH)
+    scholar_id = get_google_scholar_id(profile)
+
     old_publications = load_existing_publications(OUTPUT_PATH)
     old_data = build_old_data_map(old_publications)
 
     pdf_files = scan_papers_folder(PAPERS_DIR)
-    articles = fetch_articles_from_serpapi()
+    image_files = scan_publication_images_folder(PUBLICATION_IMAGES_DIR)
+    articles = fetch_articles_from_serpapi(scholar_id)
 
     publications = []
 
@@ -415,6 +565,7 @@ def main():
             pub=pub,
             old_data=old_data,
             pdf_files=pdf_files,
+            image_files=image_files,
             index=i,
             total=len(articles),
         )

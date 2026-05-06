@@ -1,4 +1,5 @@
 const PUBLICATIONS_URL = "./data/publications.json";
+const DEFAULT_PUBLICATION_IMAGE = "images/publications/default.svg";
 const container = document.getElementById("publications-container");
 
 function escapeHTML(value = "") {
@@ -24,6 +25,21 @@ function normalisePDFPath(pdf) {
   if (!clean) return "";
   if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("./") || clean.startsWith("/")) return clean;
   return clean.startsWith("papers/") ? clean : `papers/${clean}`;
+}
+
+function normalisePublicationImage(image) {
+  if (!image) return "";
+  const clean = String(image).trim();
+  if (!clean) return "";
+  if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("./") || clean.startsWith("/") || clean.startsWith("images/")) return clean;
+  return `images/publications/${clean}`;
+}
+
+function getPublicationImage(pub) {
+  const localImage = normalisePublicationImage(pub.image);
+  if (localImage) return localImage;
+  if (pub.slug && String(pub.slug).trim()) return `images/publications/${String(pub.slug).trim()}.jpg`;
+  return DEFAULT_PUBLICATION_IMAGE;
 }
 
 function sortYearsDescending(years) {
@@ -57,19 +73,30 @@ function renderPublications(data) {
       const doiURL = normaliseDOI(pub.doi);
       const pdfURL = normalisePDFPath(pub.pdf);
       const scholarURL = pub.scholar || "";
+      const imageURL = getPublicationImage(pub);
       const citations = Number(pub.citations) > 0 ? `<span class="publication-meta">Citations: ${Number(pub.citations)}</span>` : "";
       html += `
         <li class="publication-item">
-          <div>
-            ${pub.authors ? `${escapeHTML(pub.authors)} ` : ""}(${escapeHTML(pub.year || year)}).
-            <span class="publication-title">${escapeHTML(pub.title || "Untitled")}</span>.
-            ${pub.journal ? `<em>${escapeHTML(pub.journal)}</em>.` : ""}
+          <div class="publication-thumb">
+            <img
+              src="${escapeHTML(imageURL)}"
+              alt="${escapeHTML(pub.title || "Publication image")}"
+              loading="lazy"
+              onerror="this.onerror=null;this.src='${DEFAULT_PUBLICATION_IMAGE}';"
+            />
           </div>
-          <div class="publication-links">
-            ${doiURL ? `<a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> DOI</a>` : ""}
-            ${pdfURL ? `<a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-file-pdf"></i> PDF</a>` : ""}
-            ${scholarURL ? `<a href="${escapeHTML(scholarURL)}" target="_blank" rel="noopener noreferrer"><i class="ai ai-google-scholar"></i> Scholar</a>` : ""}
-            ${citations}
+          <div class="publication-content">
+            <div>
+              ${pub.authors ? `${escapeHTML(pub.authors)} ` : ""}(${escapeHTML(pub.year || year)}).
+              <span class="publication-title">${escapeHTML(pub.title || "Untitled")}</span>.
+              ${pub.journal ? `<em>${escapeHTML(pub.journal)}</em>.` : ""}
+            </div>
+            <div class="publication-links">
+              ${doiURL ? `<a href="${escapeHTML(doiURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-link"></i> DOI</a>` : ""}
+              ${pdfURL ? `<a href="${escapeHTML(pdfURL)}" target="_blank" rel="noopener noreferrer"><i class="fa-regular fa-file-pdf"></i> PDF</a>` : ""}
+              ${scholarURL ? `<a href="${escapeHTML(scholarURL)}" target="_blank" rel="noopener noreferrer"><i class="ai ai-google-scholar"></i> Scholar</a>` : ""}
+              ${citations}
+            </div>
           </div>
         </li>
       `;
