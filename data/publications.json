@@ -22,7 +22,12 @@
     "doi": "10.1080/13504851.2025.2534501",
     "pdf": "papers/Geopolitical_risk.pdf",
     "image": "",
-    "attachments": [],
+    "attachments": [
+      {
+        "label": "Supplementary",
+        "file": "attachments/publications/evidence from the US–China Tension Index.docx"
+      }
+    ],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:u-x6o8ySG0sC"
   },
   {
@@ -63,7 +68,7 @@
     "image": "",
     "attachments": [
       {
-        "label": "Evidence from the Korean Peninsula Using a GJR GARCH MIDAS Framework",
+        "label": "Supplementary",
         "file": "attachments/publications/Evidence from the Korean Peninsula Using a GJR-GARCH-MIDAS Framework.docx"
       }
     ],
@@ -81,7 +86,7 @@
     "image": "",
     "attachments": [
       {
-        "label": "The impact of investor sentiment and policy uncertainty on stock market volatility",
+        "label": "Supplementary",
         "file": "attachments/publications/The impact of investor sentiment and policy uncertainty on stock market volatility.docx"
       }
     ],
