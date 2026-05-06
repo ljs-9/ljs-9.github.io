@@ -9,6 +9,7 @@
     "doi": "10.1057/s41599-025-06027-9",
     "pdf": "papers/ESG performance, digital transformation, and green innovation.pdf",
     "image": "",
+    "attachments": [],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:d1gkVwhDpl0C"
   },
   {
@@ -21,6 +22,7 @@
     "doi": "10.1080/13504851.2025.2534501",
     "pdf": "papers/Geopolitical_risk.pdf",
     "image": "",
+    "attachments": [],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:u-x6o8ySG0sC"
   },
   {
@@ -33,6 +35,7 @@
     "doi": "10.1016/j.iref.2026.104918",
     "pdf": "papers/A new perspective on gold as a risk hedge Long-term impacts of bilateral political tensions between the U.S. and China.pdf",
     "image": "images/publications/A New Perspective on Gold as a Risk Hedge.png",
+    "attachments": [],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:qjMakFHDy7sC"
   },
   {
@@ -45,6 +48,7 @@
     "doi": "10.1016/j.pacfin.2026.103074",
     "pdf": "papers/Beyond market stress Incremental long-term information in geopolitical tension for gold volatility.pdf",
     "image": "images/publications/Incremental long-term information in geopolitical tension for gold volatility.png",
+    "attachments": [],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:UeHWp8X0CEIC"
   },
   {
@@ -57,6 +61,12 @@
     "doi": "10.1080/13504851.2025.2612066",
     "pdf": "papers/Geopolitical risk and long-term stock market volatility  evidence from the Korean Peninsula using a GJR-GARCH-MIDAS framework.pdf",
     "image": "",
+    "attachments": [
+      {
+        "label": "Evidence from the Korean Peninsula Using a GJR GARCH MIDAS Framework",
+        "file": "attachments/publications/Evidence from the Korean Peninsula Using a GJR-GARCH-MIDAS Framework.docx"
+      }
+    ],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:2osOgNQ5qMEC"
   },
   {
@@ -69,6 +79,12 @@
     "doi": "10.1080/1540496x.2025.2604591",
     "pdf": "papers/The Impact of Investor Sentiment and Policy Uncertainty on Stock Market Volatility  Evidence from the Korean Stock Market.pdf",
     "image": "",
+    "attachments": [
+      {
+        "label": "The impact of investor sentiment and policy uncertainty on stock market volatility",
+        "file": "attachments/publications/The impact of investor sentiment and policy uncertainty on stock market volatility.docx"
+      }
+    ],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:9yKSN-GCB0IC"
   }
 ]
