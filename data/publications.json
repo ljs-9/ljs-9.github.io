@@ -5,7 +5,7 @@
     "year": "2025",
     "journal": "Humanities and social sciences communications 12 (1), 1739, 2025",
     "pages": "",
-    "citations": 19,
+    "citations": 20,
     "doi": "10.1057/s41599-025-06027-9",
     "pdf": "papers/ESG performance, digital transformation, and green innovation.pdf",
     "image": "",
@@ -44,6 +44,24 @@
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:qjMakFHDy7sC"
   },
   {
+    "title": "The Impact of Investor Sentiment and Policy Uncertainty on Stock Market Volatility: Evidence from the Korean Stock Market",
+    "authors": "H Kang, S Li",
+    "year": "2025",
+    "journal": "Emerging Markets Finance and Trade, 1-12, 2025",
+    "pages": "",
+    "citations": 1,
+    "doi": "10.1080/1540496x.2025.2604591",
+    "pdf": "papers/The Impact of Investor Sentiment and Policy Uncertainty on Stock Market Volatility  Evidence from the Korean Stock Market.pdf",
+    "image": "",
+    "attachments": [
+      {
+        "label": "Supplementary",
+        "file": "attachments/publications/The impact of investor sentiment and policy uncertainty on stock market volatility.docx"
+      }
+    ],
+    "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:9yKSN-GCB0IC"
+  },
+  {
     "title": "Beyond market stress: Incremental long-term information in geopolitical tension for gold volatility",
     "authors": "Y Liu, S Li",
     "year": "2026",
@@ -73,23 +91,5 @@
       }
     ],
     "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:2osOgNQ5qMEC"
-  },
-  {
-    "title": "The Impact of Investor Sentiment and Policy Uncertainty on Stock Market Volatility: Evidence from the Korean Stock Market",
-    "authors": "H Kang, S Li",
-    "year": "2025",
-    "journal": "Emerging Markets Finance and Trade, 1-12, 2025",
-    "pages": "",
-    "citations": 0,
-    "doi": "10.1080/1540496x.2025.2604591",
-    "pdf": "papers/The Impact of Investor Sentiment and Policy Uncertainty on Stock Market Volatility  Evidence from the Korean Stock Market.pdf",
-    "image": "",
-    "attachments": [
-      {
-        "label": "Supplementary",
-        "file": "attachments/publications/The impact of investor sentiment and policy uncertainty on stock market volatility.docx"
-      }
-    ],
-    "scholar": "https://scholar.google.com/citations?view_op=view_citation&hl=en&user=UdIP7WoAAAAJ&citation_for_view=UdIP7WoAAAAJ:9yKSN-GCB0IC"
   }
 ]
