@@ -426,6 +426,180 @@
         margin-bottom: 34px;
       }
     }
+
+/* Keep the publication list readable alongside the annual trend chart. */
+body .content {
+  max-width: 1380px;
+}
+
+body main,
+body .top-nav,
+body footer {
+  max-width: 1284px;
+}
+
+.publications-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 430px;
+  gap: 42px;
+  align-items: start;
+}
+
+#publications-container {
+  min-width: 0;
+}
+
+.publication-trends {
+  position: sticky;
+  top: 28px;
+  margin-top: 26px;
+  padding: 24px 18px 18px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #303030;
+}
+
+.publication-trends h3 {
+  margin: 0 0 10px;
+  padding: 0 8px;
+  border: 0;
+  font-size: 1rem;
+  color: #303030;
+}
+
+#publication-trend-chart {
+  position: relative;
+}
+
+.trend-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-size: 14px;
+}
+
+.trend-svg text {
+  fill: #3b3b3b;
+}
+
+.trend-year:focus {
+  outline: none;
+}
+
+.trend-year .trend-focus {
+  fill: transparent;
+  stroke: transparent;
+}
+
+.trend-year:hover .trend-focus,
+.trend-year:focus .trend-focus {
+  fill: rgba(52, 120, 232, 0.05);
+  stroke: #b9d0f4;
+}
+
+.trend-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  margin-top: -2px;
+  font-size: 0.82rem;
+}
+
+.trend-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trend-bar-key {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  background: #3478e8;
+}
+
+.trend-line-key {
+  display: inline-block;
+  position: relative;
+  width: 19px;
+  height: 3px;
+  background: #08084d;
+}
+
+.trend-line-key::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background: #08084d;
+}
+
+.publication-trends .trend-note {
+  margin: 14px 8px 0;
+  font-family: "Noto Serif SC", Georgia, serif;
+  font-size: 0.73rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.trend-tooltip {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 2;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 100%;
+  padding: 7px 12px;
+  border: 1px solid #dce5f0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(23, 32, 51, 0.08);
+  font-size: 0.78rem;
+  pointer-events: none;
+}
+
+@media (min-width: 1101px) and (max-width: 1250px) {
+  .publications-layout {
+    grid-template-columns: minmax(0, 1fr) 370px;
+    gap: 30px;
+  }
+
+  .publication-item {
+    grid-template-columns: 140px minmax(0, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .publications-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .publication-trends {
+    position: static;
+    grid-row: 1;
+    width: 100%;
+    max-width: 560px;
+    margin: 4px 0 0;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .publication-trends {
+    padding: 20px 8px 16px;
+  }
+}
   </style>
 </head>
 
@@ -435,7 +609,6 @@
       <div class="top-nav-links">
         <a href="index.html">Home</a>
         <a class="active" href="publications.html">Publications</a>
-        <a href="cv.html">CV</a>
         <a href="teaching.html">Teaching</a>
         <a href="contact.html">Contact</a>
       </div>
@@ -445,8 +618,22 @@
       <section id="publications">
         <h2>Publications(SSCI)</h2>
 
-        <div id="publications-container">
-          <p class="status-message">Loading publications...</p>
+        <div class="publications-layout">
+          <div id="publications-container">
+            <p class="status-message">Loading publications...</p>
+          </div>
+          <aside class="publication-trends" lang="zh-CN" aria-labelledby="trend-heading">
+            <h3 id="trend-heading">文献与引文趋势</h3>
+            <div id="publication-trend-chart" aria-live="polite">
+              <p class="trend-note">正在加载年度数据…</p>
+            </div>
+            <div class="trend-legend" aria-hidden="true">
+              <span><i class="trend-bar-key"></i>文献</span>
+              <span><i class="trend-line-key"></i>引文</span>
+            </div>
+            <p class="trend-note" id="trend-source">来源：<a href="https://www.scopus.com/authid/detail.uri?authorId=59491989200" target="_blank" rel="noopener noreferrer">Scopus</a> · 数据截至 2026-10-31。<br />文献按发表年份、引文按被引用年份统计。</p>
+            <noscript><p class="trend-note">请启用 JavaScript 查看年度趋势图。</p></noscript>
+          </aside>
         </div>
       </section>
     </main>
@@ -467,6 +654,104 @@
     </figure>
   </div>
 
+  <!-- Scopus annual data snapshot; update the values and date together. -->
+  <script type="application/json" id="scopus-trend-data">
+{
+  "source": "Scopus",
+  "source_url": "https://www.scopus.com/authid/detail.uri?authorId=59491989200",
+  "updated_at": "2026-10-31",
+  "yearly": [
+    { "year": 2025, "publications": 2, "citations": 1 },
+    { "year": 2026, "publications": 4, "citations": 42 }
+  ]
+}
+  </script>
+  <script>
+(() => {
+  const chart = document.getElementById("publication-trend-chart");
+  const validYear = value => /^\d{4}$/.test(String(value)) && Number(value) >= 1900 && Number(value) <= 2100;
+
+  function render(data) {
+    if (!Array.isArray(data.yearly) || !data.yearly.length) throw new Error("Missing Scopus annual data");
+    const counts = new Map();
+    const citations = new Map();
+    data.yearly.forEach(point => {
+      if (!point || !validYear(point.year)
+        || !Number.isInteger(point.publications) || point.publications < 0
+        || !Number.isInteger(point.citations) || point.citations < 0
+        || counts.has(Number(point.year))) throw new Error("Invalid Scopus annual data");
+      const year = Number(point.year);
+      counts.set(year, point.publications);
+      citations.set(year, point.citations);
+    });
+    const years = [...counts.keys()].sort((a, b) => a - b);
+    const maxPublications = Math.max(1, ...counts.values());
+    // Leave space above the citation markers, as in the Scopus reference.
+    const maxCitations = Math.max(1, Math.ceil(Math.max(...citations.values()) * 1.1 / 6) * 6);
+    const left = 64;
+    const right = 456;
+    const top = 36;
+    const bottom = 198;
+    const height = bottom - top;
+    const slot = (right - left) / years.length;
+    const barWidth = Math.min(24, slot * 0.3);
+    const x = index => left + slot * (index + 0.5);
+    const citationY = value => bottom - height * value / maxCitations;
+    const label = year => `${year} 年：文献 ${counts.get(year)} 篇；引文 ${citations.get(year)} 次`;
+    const description = years.map(label).join("。 ");
+    const points = years.map((year, index) => `${x(index)},${citationY(citations.get(year) || 0)}`);
+
+    const labelEvery = Math.max(1, Math.ceil(years.length / 6));
+    chart.innerHTML = `
+      <svg class="trend-svg" viewBox="0 0 520 236" role="img" aria-labelledby="trend-svg-title trend-svg-description">
+        <title id="trend-svg-title">文献与引文年度趋势</title>
+        <desc id="trend-svg-description">Scopus 年度数据。蓝色柱表示当年发表的文献数量，深蓝色折线表示所有文献在当年被引用的次数。${description}</desc>
+        <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#c7cfff" />
+        <text x="${left - 10}" y="${top + 4}" text-anchor="end">${maxPublications}</text>
+        <text x="${left - 10}" y="${bottom + 4}" text-anchor="end">0</text>
+        <text x="${right + 10}" y="${top + 4}">${maxCitations}</text>
+        <text x="${right + 10}" y="${bottom + 4}">0</text>
+        <text transform="translate(21 117) rotate(-90)" text-anchor="middle">文献</text>
+        <text transform="translate(502 117) rotate(90)" text-anchor="middle">引文</text>
+        ${years.map((year, index) => {
+          const count = counts.get(year) || 0;
+          const barHeight = height * count / maxPublications;
+          return `<rect x="${x(index) - barWidth / 2}" y="${bottom - barHeight}" width="${barWidth}" height="${barHeight}" fill="#3478e8" />
+            ${index % labelEvery === 0 || index === years.length - 1 ? `<text x="${x(index)}" y="225" text-anchor="middle">${year}</text>` : ""}`;
+        }).join("")}
+        <polyline points="${points.join(" ")}" fill="none" stroke="#08084d" stroke-width="2.8" stroke-linejoin="round" />
+        ${years.map((year, index) => `<circle cx="${x(index)}" cy="${citationY(citations.get(year) || 0)}" r="5.2" fill="#08084d" stroke="white" stroke-width="1.2" />`).join("")}
+        ${years.map((year, index) => `<g class="trend-year" tabindex="0" data-year="${year}" role="img" aria-label="${label(year)}">
+          <rect class="trend-focus" x="${left + slot * index + 2}" y="${top - 8}" width="${Math.max(1, slot - 4)}" height="${height + 12}" rx="4" />
+        </g>`).join("")}
+      </svg>
+      <div class="trend-tooltip" role="status" hidden></div>
+    `;
+
+    const tooltip = chart.querySelector(".trend-tooltip");
+    chart.querySelectorAll(".trend-year").forEach(target => {
+      const show = () => {
+        tooltip.textContent = label(Number(target.dataset.year));
+        tooltip.hidden = false;
+      };
+      const hide = () => { tooltip.hidden = true; };
+      target.addEventListener("pointerenter", show);
+      target.addEventListener("pointerleave", hide);
+      target.addEventListener("focus", show);
+      target.addEventListener("blur", hide);
+      target.addEventListener("keydown", event => { if (event.key === "Escape") hide(); });
+    });
+
+  }
+
+  try {
+    render(JSON.parse(document.getElementById("scopus-trend-data").textContent));
+  } catch (error) {
+    console.warn("Scopus trend data is unavailable:", error);
+    chart.innerHTML = '<p class="trend-note">Scopus 年度数据暂不可用，请点击下方来源查看。</p>';
+  }
+})();
+  </script>
   <script>
     const PUBLICATIONS_URL = "./data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
