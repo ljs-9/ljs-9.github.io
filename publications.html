@@ -697,14 +697,14 @@ body footer {
     const barWidth = Math.min(24, slot * 0.3);
     const x = index => left + slot * (index + 0.5);
     const citationY = value => bottom - height * value / maxCitations;
-    const label = year => `${year} 年：文献 ${counts.get(year)} 篇；引文 ${citations.get(year)} 次`;
+    const label = year => `${year} ：Documents ${counts.get(year)} ；citations ${citations.get(year)} `;
     const description = years.map(label).join("。 ");
     const points = years.map((year, index) => `${x(index)},${citationY(citations.get(year) || 0)}`);
 
     const labelEvery = Math.max(1, Math.ceil(years.length / 6));
     chart.innerHTML = `
       <svg class="trend-svg" viewBox="0 0 520 236" role="img" aria-labelledby="trend-svg-title trend-svg-description">
-        <title id="trend-svg-title">文献与引文年度趋势</title>
+        <title id="trend-svg-title">Document & citation trends</title>
         <desc id="trend-svg-description">Scopus 年度数据。蓝色柱表示当年发表的文献数量，深蓝色折线表示所有文献在当年被引用的次数。${description}</desc>
         <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#c7cfff" />
         <text x="${left - 10}" y="${top + 4}" text-anchor="end">${maxPublications}</text>
