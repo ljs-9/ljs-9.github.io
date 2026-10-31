@@ -2,7 +2,7 @@ import json
 import os
 import re
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from urllib.parse import quote
 
@@ -17,6 +17,8 @@ PROFILE_PATH = "data/profile.json"
 API_KEY = os.getenv("SERPAPI_KEY")
 OUTPUT_PATH = "data/publications.json"
 TEMP_PATH = "data/publications.tmp.json"
+METRICS_PATH = "data/scholar-metrics.json"
+METRICS_TEMP_PATH = "data/scholar-metrics.tmp.json"
 PAPERS_DIR = "papers"
 PUBLICATION_IMAGES_DIR = "images/publications"
 PUBLICATION_ATTACHMENTS_DIR = "attachments/publications"
@@ -68,12 +70,9 @@ def get_google_scholar_id(profile: dict) -> str:
 
 def build_serpapi_url(scholar_id: str) -> str:
     """
-    Build the SerpAPI URL for a Google Scholar author profile.
+    Keep credentials out of the endpoint string and public error messages.
     """
-    return (
-        "https://serpapi.com/search.json"
-        f"?engine=google_scholar_author&author_id={scholar_id}&api_key={API_KEY}"
-    )
+    return "https://serpapi.com/search.json"
 
 
 def load_existing_publications(path: str) -> list:
@@ -604,9 +603,9 @@ def fetch_doi_from_crossref(title: str, authors: str = "", year: str = "") -> st
     return ""
 
 
-def fetch_articles_from_serpapi(scholar_id: str) -> list:
+def fetch_scholar_data_from_serpapi(scholar_id: str) -> dict:
     """
-    Fetch publications from SerpAPI.
+    Fetch publications and author citation metrics in one SerpAPI request.
 
     If SerpAPI returns zero articles, stop the workflow and keep the existing
     publications.json unchanged.
@@ -616,14 +615,33 @@ def fetch_articles_from_serpapi(scholar_id: str) -> list:
 
     print(f"Fetching publications from SerpAPI for Google Scholar id: {scholar_id}")
 
-    response = requests.get(build_serpapi_url(scholar_id), timeout=30)
+    try:
+        response = requests.get(
+            build_serpapi_url(scholar_id),
+            params={
+                "engine": "google_scholar_author",
+                "author_id": scholar_id,
+                "hl": "en",
+                "api_key": API_KEY,
+            },
+            timeout=30,
+        )
+    except requests.RequestException:
+        raise RuntimeError("❌ SerpAPI request failed. Existing data will be kept unchanged.") from None
 
     if response.status_code != 200:
         raise RuntimeError(
-            f"❌ SerpAPI request failed: {response.status_code} - {response.text}"
+            f"❌ SerpAPI request failed with HTTP {response.status_code}. Existing data will be kept unchanged."
         )
 
-    data = response.json()
+    try:
+        data = response.json()
+    except ValueError:
+        raise RuntimeError("❌ SerpAPI returned invalid JSON. Existing data will be kept unchanged.") from None
+
+    if not isinstance(data, dict) or data.get("error"):
+        raise RuntimeError("❌ SerpAPI returned an error. Existing data will be kept unchanged.")
+
     articles = data.get("articles", [])
 
     if not isinstance(articles, list):
@@ -635,7 +653,81 @@ def fetch_articles_from_serpapi(scholar_id: str) -> list:
         )
 
     print(f"✅ Fetched {len(articles)} articles from SerpAPI.")
-    return articles
+    return data
+
+
+def parse_citation_count(value) -> int:
+    """Accept nonnegative integers and Scholar's formatted integer strings."""
+    if isinstance(value, bool) or not isinstance(value, (int, str)):
+        raise ValueError("Invalid citation count.")
+    text = str(value).strip()
+    if not re.fullmatch(r"[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+", text):
+        raise ValueError("Invalid citation count.")
+    return int(text.replace(",", ""))
+
+
+def normalise_scholar_metrics(data: dict, scholar_id: str) -> dict:
+    """Read true citation years and the author's all-time total from Scholar."""
+    if not isinstance(data, dict) or not isinstance(data.get("cited_by"), dict):
+        raise ValueError("No author citation metrics were returned.")
+    cited_by = data["cited_by"]
+    table = cited_by.get("table")
+    if not isinstance(table, list):
+        raise ValueError("No author citation totals were returned.")
+
+    totals = []
+    for row in table:
+        if isinstance(row, dict) and "citations" in row:
+            if not isinstance(row["citations"], dict) or "all" not in row["citations"]:
+                raise ValueError("Invalid author citation total.")
+            totals.append(parse_citation_count(row["citations"]["all"]))
+    if len(totals) != 1:
+        raise ValueError("Missing or duplicate author citation total.")
+    total_citations = totals[0]
+
+    graph = cited_by.get("graph")
+    if not isinstance(graph, list) or (not graph and total_citations > 0):
+        raise ValueError("No yearly citation graph was returned.")
+    yearly = {}
+    for point in graph:
+        if not isinstance(point, dict):
+            raise ValueError("Invalid yearly citation graph entry.")
+        year = str(point.get("year", "")).strip()
+        if not re.fullmatch(r"[1-9][0-9]{3}", year):
+            raise ValueError("Invalid year in citation graph.")
+        year = int(year)
+        if not 1900 <= year <= 2100:
+            raise ValueError("Invalid year in citation graph.")
+        if year in yearly:
+            raise ValueError("Duplicate year in citation graph.")
+        yearly[year] = parse_citation_count(point.get("citations"))
+
+    return {
+        "source": "Google Scholar",
+        "source_url": f"https://scholar.google.com/citations?user={quote(scholar_id, safe='')}&hl=en",
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "total_citations": total_citations,
+        "citations_by_year": [
+            {"year": year, "citations": yearly[year]} for year in sorted(yearly)
+        ],
+    }
+
+
+def save_scholar_metrics_safely(data: dict, scholar_id: str, output_path: str, temp_path: str) -> bool:
+    """Replace the complete metrics snapshot only after all fields validate."""
+    try:
+        metrics = normalise_scholar_metrics(data, scholar_id)
+    except ValueError as error:
+        print(f"⚠️ {error} Existing scholar-metrics.json will be kept unchanged.")
+        return False
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(temp_path, "w", encoding="utf-8") as f:
+        json.dump(metrics, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    os.replace(temp_path, output_path)
+    print("✅ Updated Google Scholar yearly citations and total citation count.")
+    return True
 
 
 def normalise_publication(
@@ -746,7 +838,8 @@ def main():
     pdf_files = scan_papers_folder(PAPERS_DIR)
     image_files = scan_publication_images_folder(PUBLICATION_IMAGES_DIR)
     attachment_files = scan_publication_attachments_folder(PUBLICATION_ATTACHMENTS_DIR)
-    articles = fetch_articles_from_serpapi(scholar_id)
+    scholar_data = fetch_scholar_data_from_serpapi(scholar_id)
+    articles = scholar_data["articles"]
 
     publications = []
 
@@ -765,6 +858,7 @@ def main():
             publications.append(normalised)
 
     save_publications_safely(publications, OUTPUT_PATH, TEMP_PATH)
+    save_scholar_metrics_safely(scholar_data, scholar_id, METRICS_PATH, METRICS_TEMP_PATH)
 
 
 if __name__ == "__main__":
