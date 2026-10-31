@@ -1,6 +1,11 @@
 name: Update Google Scholar Publications
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/update_publications.py'
+      - '.github/workflows/update_citations.yml'
   schedule:
     - cron: '0 0 * * *'  # Daily at UTC 00:00, Beijing time 08:00
   workflow_dispatch:
@@ -40,11 +45,12 @@ jobs:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python scripts/update_publications.py
 
-      - name: Validate publications file
+      - name: Validate publications and Scholar metrics
         run: |
           python - <<'PY'
           import json
           import os
+          from datetime import datetime
 
           path = "data/publications.json"
 
@@ -58,6 +64,46 @@ jobs:
               raise SystemExit("data/publications.json is empty or invalid.")
 
           print(f"Validated publications.json with {len(data)} publications.")
+
+          metrics_path = "data/scholar-metrics.json"
+          if os.path.exists(metrics_path):
+              with open(metrics_path, "r", encoding="utf-8") as f:
+                  metrics = json.load(f)
+              if not isinstance(metrics, dict) or metrics.get("source") != "Google Scholar":
+                  raise SystemExit("Invalid Scholar metrics source.")
+              with open("data/profile.json", "r", encoding="utf-8") as f:
+                  profile = json.load(f)
+              from urllib.parse import quote
+              source_url = f"https://scholar.google.com/citations?user={quote(profile['googleScholarId'], safe='')}&hl=en"
+              if metrics.get("source_url") != source_url:
+                  raise SystemExit("Scholar metrics do not match this author.")
+              try:
+                  updated_at = datetime.fromisoformat(metrics.get("updated_at", "").replace("Z", "+00:00"))
+              except (AttributeError, TypeError, ValueError):
+                  raise SystemExit("Invalid Scholar metrics update time.")
+              if updated_at.utcoffset() is None or updated_at.utcoffset().total_seconds() != 0:
+                  raise SystemExit("Scholar metrics update time must use UTC.")
+              total = metrics.get("total_citations")
+              points = metrics.get("citations_by_year")
+              if type(total) is not int or total < 0 or not isinstance(points, list):
+                  raise SystemExit("Invalid Scholar citation metrics.")
+              if not points and total > 0:
+                  raise SystemExit("Scholar metrics have no yearly citation graph.")
+              years = []
+              for point in points:
+                  if not isinstance(point, dict):
+                      raise SystemExit("Invalid yearly citation entry.")
+                  year, citations = point.get("year"), point.get("citations")
+                  if type(year) is not int or not 1900 <= year <= 2100:
+                      raise SystemExit("Invalid citation year.")
+                  if type(citations) is not int or citations < 0:
+                      raise SystemExit("Invalid yearly citation count.")
+                  years.append(year)
+              if years != sorted(set(years)):
+                  raise SystemExit("Citation years must be unique and ascending.")
+              print(f"Validated Scholar metrics with {len(points)} years.")
+          else:
+              print("Scholar metrics are not available yet; the publication update is preserved.")
           PY
 
       - name: Commit and push changes
@@ -66,9 +112,12 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           git add data/publications.json
+          if [ -f data/scholar-metrics.json ]; then
+            git add data/scholar-metrics.json
+          fi
 
           if git diff --cached --quiet; then
-            echo "No publication changes detected."
+            echo "No publication or Scholar metric changes detected."
           else
             git commit -m "Auto update Google Scholar publications [$(date '+%Y-%m-%d')]"
             git push
