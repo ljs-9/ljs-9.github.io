@@ -542,6 +542,29 @@ body footer {
   background: #08084d;
 }
 
+.trend-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin: 18px 8px 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.trend-total strong {
+  color: #08084d;
+  font-size: 1.35rem;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+
+#trend-updated {
+  display: block;
+}
+
 .publication-trends .trend-note {
   margin: 14px 8px 0;
   font-family: "Noto Serif SC", Georgia, serif;
@@ -624,7 +647,7 @@ body footer {
           <div id="publications-container">
             <p class="status-message">Loading publications...</p>
           </div>
-          <aside class="publication-trends" lang="zh-CN" aria-labelledby="trend-heading">
+          <aside class="publication-trends" lang="en" aria-labelledby="trend-heading">
             <h3 id="trend-heading">Document & citation trends</h3>
             <div id="publication-trend-chart" aria-live="polite">
               <p class="trend-note">Loading annual data…</p>
@@ -633,7 +656,9 @@ body footer {
               <span><i class="trend-bar-key"></i>Documents</span>
               <span><i class="trend-line-key"></i>citations</span>
             </div>
-            <p class="trend-note" id="trend-source">Source: Citation counts displayed in the publication list; citations are aggregated by publication year.</p>
+            <p class="trend-total" aria-live="polite"><span>Total citations</span><strong id="trend-total-citations">—</strong></p>
+            <p class="trend-note" id="trend-source">Source: <a href="https://scholar.google.com/citations?user=UdIP7WoAAAAJ&amp;hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a> · updated daily.<br />Documents by publication year; citations received in each year.<span id="trend-updated">Last updated: awaiting first sync.</span></p>
+            <p class="trend-note" id="trend-status" role="status" hidden></p>
             <noscript><p class="trend-note">Please enable JavaScript to view the annual trend chart.</p></noscript>
           </aside>
         </div>
@@ -660,16 +685,43 @@ body footer {
 <script>
 (() => {
   const chart = document.getElementById("publication-trend-chart");
-  const PUBLICATIONS_URL = "./data/publications.json";
+  const DATA_URL = "https://raw.githubusercontent.com/ljs-9/ljs-9.github.io/main/data/";
+  const PUBLICATIONS_URL = DATA_URL + "publications.json";
+  const METRICS_URL = DATA_URL + "scholar-metrics.json";
+  const CACHE_KEY = "shun_li_scholar_trends_v1";
+  const totalCitations = document.getElementById("trend-total-citations");
+  const updated = document.getElementById("trend-updated");
+  const status = document.getElementById("trend-status");
+  let loading = false;
 
-  function render(publications) {
+  function validateMetrics(metrics) {
+    if (!metrics || metrics.source !== "Google Scholar"
+      || !Number.isSafeInteger(metrics.total_citations) || metrics.total_citations < 0
+      || typeof metrics.updated_at !== "string" || !Number.isFinite(Date.parse(metrics.updated_at))
+      || !Array.isArray(metrics.citations_by_year)
+      || (!metrics.citations_by_year.length && metrics.total_citations > 0)) {
+      throw new Error("Invalid Google Scholar metrics");
+    }
+    const years = new Set();
+    metrics.citations_by_year.forEach(point => {
+      if (!point || !Number.isInteger(point.year) || point.year < 1900 || point.year > 2100
+        || !Number.isSafeInteger(point.citations) || point.citations < 0 || years.has(point.year)) {
+        throw new Error("Invalid annual citation data");
+      }
+      years.add(point.year);
+    });
+    return metrics;
+  }
+
+  function render(publications, metrics) {
     if (!Array.isArray(publications) || publications.length === 0) {
       chart.innerHTML =
         '<p class="trend-note">Publication data is currently unavailable.</p>';
       return;
     }
 
-    // 1. Group publications and citation counts by publication year
+    validateMetrics(metrics);
+    // Documents use publication years. Citations use Scholar's citation years.
     const yearly = new Map();
 
     publications.forEach(pub => {
@@ -683,8 +735,7 @@ body footer {
 
       if (!yearly.has(year)) {
         yearly.set(year, {
-          documents: 0,
-          citations: 0
+          documents: 0
         });
       }
 
@@ -692,24 +743,13 @@ body footer {
 
       values.documents += 1;
 
-      const rawCitations = pub?.citations;
-
-      if (
-        rawCitations === null ||
-        rawCitations === undefined ||
-        String(rawCitations).trim() === ""
-      ) {
-        return;
-      }
-
-      const citationCount = Number(rawCitations);
-
-      if (Number.isFinite(citationCount) && citationCount >= 0) {
-        values.citations += citationCount;
-      }
     });
 
-    const years = [...yearly.keys()].sort((a, b) => a - b);
+    const citations = new Map(metrics.citations_by_year.map(point => [point.year, point.citations]));
+    if (!citations.size && metrics.total_citations === 0) {
+      yearly.forEach((values, year) => citations.set(year, 0));
+    }
+    const years = [...new Set([...yearly.keys(), ...citations.keys()])].sort((a, b) => a - b);
 
     if (years.length === 0) {
       chart.innerHTML =
@@ -719,11 +759,7 @@ body footer {
 
     // 2. Prepare annual statistics
     const counts = new Map(
-      years.map(year => [year, yearly.get(year).documents])
-    );
-
-    const citations = new Map(
-      years.map(year => [year, yearly.get(year).citations])
+      years.map(year => [year, yearly.get(year)?.documents || 0])
     );
 
     const maxDocuments = Math.max(1, ...counts.values());
@@ -752,18 +788,26 @@ body footer {
 
     // 4. Tooltip labels
     const label = year =>
-      `${year}\nDocuments: ${counts.get(year)}\nCitations: ${citations.get(year)}`;
+      `${year}\nDocuments: ${counts.get(year)}\nCitations: ${citations.has(year) ? citations.get(year) : "Unavailable"}`;
 
     const description = years
       .map(year =>
-        `${year}: ${counts.get(year)} publications, ${citations.get(year)} citations`
+        `${year}: ${counts.get(year)} publications, ${citations.has(year) ? citations.get(year) : "unavailable"} citations`
       )
       .join("; ");
 
     // 5. Citation line coordinates
-    const points = years.map((year, index) =>
-      `${x(index)},${citationY(citations.get(year) || 0)}`
-    );
+    const segments = [];
+    let points = [];
+    years.forEach((year, index) => {
+      if (citations.has(year)) {
+        points.push(`${x(index)},${citationY(citations.get(year))}`);
+      } else if (points.length) {
+        segments.push(points);
+        points = [];
+      }
+    });
+    if (points.length) segments.push(points);
 
     const labelEvery = Math.max(
       1,
@@ -797,27 +841,27 @@ body footer {
     }).join("");
 
     // 7. Dark blue citation line
-    const line = `
+    const line = segments.map(segment => `
       <polyline
-        points="${points.join(" ")}"
+        points="${segment.join(" ")}"
         fill="none"
         stroke="#08084d"
         stroke-width="2.8"
         stroke-linejoin="round"
       />
-    `;
+    `).join("");
 
     // 8. Citation markers
-    const markers = years.map((year, index) => `
+    const markers = years.map((year, index) => citations.has(year) ? `
       <circle
         cx="${x(index)}"
-        cy="${citationY(citations.get(year) || 0)}"
+        cy="${citationY(citations.get(year))}"
         r="5.2"
         fill="#08084d"
         stroke="white"
         stroke-width="1.2"
       />
-    `).join("");
+    ` : "").join("");
 
     // 9. Interactive hover areas
     const focusTargets = years.map((year, index) => `
@@ -826,7 +870,7 @@ body footer {
         tabindex="0"
         data-year="${year}"
         role="img"
-        aria-label="${year}, Documents: ${counts.get(year)}, Citations: ${citations.get(year)}"
+        aria-label="${year}, Documents: ${counts.get(year)}, Citations: ${citations.has(year) ? citations.get(year) : "Unavailable"}"
       >
         <rect
           class="trend-focus"
@@ -853,8 +897,8 @@ body footer {
 
         <desc id="trend-svg-description">
           Blue bars show the number of publications in each publication year.
-          The dark blue line shows the sum of the current citation counts
-          displayed for those publications.
+          The dark blue line shows citations received in each calendar year,
+          as reported by Google Scholar.
           ${description}
         </desc>
 
@@ -935,23 +979,68 @@ body footer {
       });
 
     });
+
+    totalCitations.textContent = metrics.total_citations.toLocaleString("en-US");
+    updated.textContent = "Last updated: " + new Date(metrics.updated_at).toLocaleString("en-GB", {
+      timeZone: "Asia/Shanghai", year: "numeric", month: "short", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", hour12: false
+    }) + " (UTC+8)";
   }
 
-  // 12. Load publication data directly from publications.json
-  async function loadPublications() {
-    try {
-      const response = await fetch(
-        PUBLICATIONS_URL,
-        { cache: "no-store" }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
+  async function fetchJSON(url) {
+    let lastError;
+    // Read committed data directly: bot commits do not rebuild GitHub Pages.
+    for (const source of [url, "./data/" + url.split("/").pop()]) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000);
+      try {
+        const response = await fetch(source, { cache: "no-store", signal: controller.signal });
+        if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        lastError = error;
+      } finally {
+        clearTimeout(timeout);
       }
+    }
+    throw lastError;
+  }
 
-      const publications = await response.json();
+  function readCachedTrends() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+      if (!Array.isArray(cached?.publications) || !cached.publications.length) return null;
+      validateMetrics(cached.metrics);
+      return cached;
+    } catch (error) {
+      return null;
+    }
+  }
 
-      render(publications);
+  // Fetch the last successful daily sync without exposing the API key in the browser.
+  async function loadPublications() {
+    if (loading) return;
+    loading = true;
+    try {
+      const [publications, metrics] = await Promise.all([
+        fetchJSON(PUBLICATIONS_URL), fetchJSON(METRICS_URL)
+      ]);
+      if (!Array.isArray(publications) || !publications.length) throw new Error("Invalid publication data");
+      validateMetrics(metrics);
+      const cached = readCachedTrends();
+      if (cached && Date.parse(cached.metrics.updated_at) > Date.parse(metrics.updated_at)) {
+        render(cached.publications, cached.metrics);
+        status.textContent = "Showing the most recent successful sync.";
+        status.hidden = false;
+        return;
+      }
+      render(publications, metrics);
+      status.hidden = true;
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ publications, metrics }));
+      } catch (error) {
+        console.warn("Unable to cache citation trends:", error);
+      }
 
     } catch (error) {
       console.error(
@@ -959,20 +1048,42 @@ body footer {
         error
       );
 
-      chart.innerHTML = `
-        <p class="trend-note">
-          Publication trend data is temporarily unavailable.
-        </p>
-      `;
+      let restored = false;
+      try {
+        const cached = readCachedTrends();
+        if (cached) {
+          render(cached.publications, cached.metrics);
+          restored = true;
+        }
+      } catch (cacheError) {
+        console.warn("Unable to restore citation trends:", cacheError);
+      }
+      if (!restored) {
+        chart.innerHTML = '<p class="trend-note">Google Scholar trend data is temporarily unavailable.</p>';
+        totalCitations.textContent = "—";
+        updated.textContent = "Last updated: unavailable.";
+      }
+      status.textContent = restored
+        ? "Showing the last successful sync. Google Scholar data could not be refreshed."
+        : "Please visit Google Scholar for the latest citation data.";
+      status.hidden = false;
+    } finally {
+      loading = false;
     }
   }
 
   loadPublications();
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") loadPublications();
+  });
+  setInterval(() => {
+    if (document.visibilityState === "visible") loadPublications();
+  }, 15 * 60 * 1000);
 
 })();
 </script>
   <script>
-    const PUBLICATIONS_URL = "./data/publications.json";
+    const PUBLICATIONS_URL = "https://raw.githubusercontent.com/ljs-9/ljs-9.github.io/main/data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
     const DEFAULT_PUBLICATION_IMAGE = "images/publications/default.svg";
 
@@ -1328,7 +1439,17 @@ body footer {
 
     async function loadPublications() {
       try {
-        const response = await fetch(PUBLICATIONS_URL, { cache: "no-store" });
+        let response;
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        try {
+          response = await fetch(PUBLICATIONS_URL, { cache: "no-store", signal: controller.signal });
+          if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        } catch (error) {
+          response = await fetch("./data/publications.json", { cache: "no-store" });
+        } finally {
+          clearTimeout(timeout);
+        }
 
         if (!response.ok) {
           throw new Error(`HTTP error ${response.status}`);
