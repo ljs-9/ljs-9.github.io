@@ -697,7 +697,7 @@ body footer {
     const barWidth = Math.min(24, slot * 0.3);
     const x = index => left + slot * (index + 0.5);
     const citationY = value => bottom - height * value / maxCitations;
-    const label = year => `${year} ：Documents: ${counts.get(year)} ；citations: ${citations.get(year)} `;
+    const label = year => `${year} ：Documents: ${counts.get(year)} ；Citations: ${citations.get(year)} `;
     const description = years.map(label).join("。 ");
     const points = years.map((year, index) => `${x(index)},${citationY(citations.get(year) || 0)}`);
 
@@ -711,8 +711,8 @@ body footer {
         <text x="${left - 10}" y="${bottom + 4}" text-anchor="end">0</text>
         <text x="${right + 10}" y="${top + 4}">${maxCitations}</text>
         <text x="${right + 10}" y="${bottom + 4}">0</text>
-        <text transform="translate(21 117) rotate(-90)" text-anchor="middle">文献</text>
-        <text transform="translate(502 117) rotate(90)" text-anchor="middle">引文</text>
+        <text transform="translate(21 117) rotate(-90)" text-anchor="middle">Documents</text>
+        <text transform="translate(502 117) rotate(90)" text-anchor="middle">Citations</text>
         ${years.map((year, index) => {
           const count = counts.get(year) || 0;
           const barHeight = height * count / maxPublications;
