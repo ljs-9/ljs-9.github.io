@@ -697,7 +697,7 @@ body footer {
     const barWidth = Math.min(24, slot * 0.3);
     const x = index => left + slot * (index + 0.5);
     const citationY = value => bottom - height * value / maxCitations;
-    const label = year => `${year} ：Documents: ${counts.get(year)} ；Citations: ${citations.get(year)} `;
+    const label = year => `${year} \n Documents: ${counts.get(year)} ；Citations: ${citations.get(year)} `;
     const description = years.map(label).join("。 ");
     const points = years.map((year, index) => `${x(index)},${citationY(citations.get(year) || 0)}`);
 
