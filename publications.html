@@ -656,105 +656,321 @@ body footer {
     </figure>
   </div>
 
-  <!-- Scopus annual data snapshot; update the values and date together. -->
-  <script type="application/json" id="scopus-trend-data">
-{
-  "source": "Scopus",
-  "source_url": "https://www.scopus.com/authid/detail.uri?authorId=59491989200",
-  "updated_at": "2026-10-31",
-  "yearly": [
-    { "year": 2025, "publications": 2, "citations": 1 },
-    { "year": 2026, "publications": 4, "citations": 42 }
-  ]
-}
-  </script>
-  <script>
+  
+<script>
 (() => {
   const chart = document.getElementById("publication-trend-chart");
-  const validYear = value => /^\d{4}$/.test(String(value)) && Number(value) >= 1900 && Number(value) <= 2100;
+  const PUBLICATIONS_URL = "./data/publications.json";
 
-  function render(data) {
-    if (!Array.isArray(data.yearly) || !data.yearly.length) throw new Error("Missing Scopus annual data");
-    const counts = new Map();
-    const citations = new Map();
-    data.yearly.forEach(point => {
-      if (!point || !validYear(point.year)
-        || !Number.isInteger(point.publications) || point.publications < 0
-        || !Number.isInteger(point.citations) || point.citations < 0
-        || counts.has(Number(point.year))) throw new Error("Invalid Scopus annual data");
-      const year = Number(point.year);
-      counts.set(year, point.publications);
-      citations.set(year, point.citations);
+  function render(publications) {
+    if (!Array.isArray(publications) || publications.length === 0) {
+      chart.innerHTML =
+        '<p class="trend-note">Publication data is currently unavailable.</p>';
+      return;
+    }
+
+    // 1. Group publications and citation counts by publication year
+    const yearly = new Map();
+
+    publications.forEach(pub => {
+      const yearText = String(pub?.year ?? "").trim();
+
+      if (!/^\d{4}$/.test(yearText)) return;
+
+      const year = Number(yearText);
+
+      if (year < 1900 || year > 2100) return;
+
+      if (!yearly.has(year)) {
+        yearly.set(year, {
+          documents: 0,
+          citations: 0
+        });
+      }
+
+      const values = yearly.get(year);
+
+      values.documents += 1;
+
+      const rawCitations = pub?.citations;
+
+      if (
+        rawCitations === null ||
+        rawCitations === undefined ||
+        String(rawCitations).trim() === ""
+      ) {
+        return;
+      }
+
+      const citationCount = Number(rawCitations);
+
+      if (Number.isFinite(citationCount) && citationCount >= 0) {
+        values.citations += citationCount;
+      }
     });
-    const years = [...counts.keys()].sort((a, b) => a - b);
-    const maxPublications = Math.max(1, ...counts.values());
-    // Leave space above the citation markers, as in the Scopus reference.
-    const maxCitations = Math.max(1, Math.ceil(Math.max(...citations.values()) * 1.1 / 6) * 6);
+
+    const years = [...yearly.keys()].sort((a, b) => a - b);
+
+    if (years.length === 0) {
+      chart.innerHTML =
+        '<p class="trend-note">No valid publication years are available.</p>';
+      return;
+    }
+
+    // 2. Prepare annual statistics
+    const counts = new Map(
+      years.map(year => [year, yearly.get(year).documents])
+    );
+
+    const citations = new Map(
+      years.map(year => [year, yearly.get(year).citations])
+    );
+
+    const maxDocuments = Math.max(1, ...counts.values());
+
+    const maxCitations = Math.max(
+      1,
+      Math.ceil(
+        Math.max(...citations.values()) * 1.1 / 6
+      ) * 6
+    );
+
+    // 3. Chart dimensions
     const left = 64;
     const right = 456;
     const top = 36;
     const bottom = 198;
+
     const height = bottom - top;
     const slot = (right - left) / years.length;
     const barWidth = Math.min(24, slot * 0.3);
-    const x = index => left + slot * (index + 0.5);
-    const citationY = value => bottom - height * value / maxCitations;
-    const label = year => 
-      `${year} \nDocuments: ${counts.get(year)} \nCitations: ${citations.get(year)} `;
-    const description = years.map(label).join("。 ");
-    const points = years.map((year, index) => `${x(index)},${citationY(citations.get(year) || 0)}`);
 
-    const labelEvery = Math.max(1, Math.ceil(years.length / 6));
+    const x = index => left + slot * (index + 0.5);
+
+    const citationY = value =>
+      bottom - height * value / maxCitations;
+
+    // 4. Tooltip labels
+    const label = year =>
+      `${year}\nDocuments: ${counts.get(year)}\nCitations: ${citations.get(year)}`;
+
+    const description = years
+      .map(year =>
+        `${year}: ${counts.get(year)} publications, ${citations.get(year)} citations`
+      )
+      .join("; ");
+
+    // 5. Citation line coordinates
+    const points = years.map((year, index) =>
+      `${x(index)},${citationY(citations.get(year) || 0)}`
+    );
+
+    const labelEvery = Math.max(
+      1,
+      Math.ceil(years.length / 6)
+    );
+
+    // 6. Blue publication bars
+    const bars = years.map((year, index) => {
+      const count = counts.get(year) || 0;
+
+      const barHeight =
+        height * count / maxDocuments;
+
+      const rect = `
+        <rect
+          x="${x(index) - barWidth / 2}"
+          y="${bottom - barHeight}"
+          width="${barWidth}"
+          height="${barHeight}"
+          fill="#3478e8"
+        />
+      `;
+
+      const yearLabel =
+        index % labelEvery === 0 ||
+        index === years.length - 1
+          ? `<text x="${x(index)}" y="225" text-anchor="middle">${year}</text>`
+          : "";
+
+      return rect + yearLabel;
+    }).join("");
+
+    // 7. Dark blue citation line
+    const line = `
+      <polyline
+        points="${points.join(" ")}"
+        fill="none"
+        stroke="#08084d"
+        stroke-width="2.8"
+        stroke-linejoin="round"
+      />
+    `;
+
+    // 8. Citation markers
+    const markers = years.map((year, index) => `
+      <circle
+        cx="${x(index)}"
+        cy="${citationY(citations.get(year) || 0)}"
+        r="5.2"
+        fill="#08084d"
+        stroke="white"
+        stroke-width="1.2"
+      />
+    `).join("");
+
+    // 9. Interactive hover areas
+    const focusTargets = years.map((year, index) => `
+      <g
+        class="trend-year"
+        tabindex="0"
+        data-year="${year}"
+        role="img"
+        aria-label="${year}, Documents: ${counts.get(year)}, Citations: ${citations.get(year)}"
+      >
+        <rect
+          class="trend-focus"
+          x="${left + slot * index + 2}"
+          y="${top - 8}"
+          width="${Math.max(1, slot - 4)}"
+          height="${height + 12}"
+          rx="4"
+        />
+      </g>
+    `).join("");
+
+    // 10. Render chart
     chart.innerHTML = `
-      <svg class="trend-svg" viewBox="0 0 520 236" role="img" aria-labelledby="trend-svg-title trend-svg-description">
-        <title id="trend-svg-title">Document & citation trends</title>
-        <desc id="trend-svg-description">Scopus 年度数据。蓝色柱表示当年发表的文献数量，深蓝色折线表示所有文献在当年被引用的次数。${description}</desc>
-        <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#c7cfff" />
-        <text x="${left - 10}" y="${top + 4}" text-anchor="end">${maxPublications}</text>
-        <text x="${left - 10}" y="${bottom + 4}" text-anchor="end">0</text>
-        <text x="${right + 10}" y="${top + 4}">${maxCitations}</text>
-        <text x="${right + 10}" y="${bottom + 4}">0</text>
-        <text transform="translate(21 117) rotate(-90)" text-anchor="middle">Documents</text>
-        <text transform="translate(502 117) rotate(90)" text-anchor="middle">Citations</text>
-        ${years.map((year, index) => {
-          const count = counts.get(year) || 0;
-          const barHeight = height * count / maxPublications;
-          return `<rect x="${x(index) - barWidth / 2}" y="${bottom - barHeight}" width="${barWidth}" height="${barHeight}" fill="#3478e8" />
-            ${index % labelEvery === 0 || index === years.length - 1 ? `<text x="${x(index)}" y="225" text-anchor="middle">${year}</text>` : ""}`;
-        }).join("")}
-        <polyline points="${points.join(" ")}" fill="none" stroke="#08084d" stroke-width="2.8" stroke-linejoin="round" />
-        ${years.map((year, index) => `<circle cx="${x(index)}" cy="${citationY(citations.get(year) || 0)}" r="5.2" fill="#08084d" stroke="white" stroke-width="1.2" />`).join("")}
-        ${years.map((year, index) => `<g class="trend-year" tabindex="0" data-year="${year}" role="img" aria-label="${label(year)}">
-          <rect class="trend-focus" x="${left + slot * index + 2}" y="${top - 8}" width="${Math.max(1, slot - 4)}" height="${height + 12}" rx="4" />
-        </g>`).join("")}
+      <svg
+        class="trend-svg"
+        viewBox="0 0 520 236"
+        role="img"
+        aria-labelledby="trend-svg-title trend-svg-description"
+      >
+        <title id="trend-svg-title">
+          Publication and citation trends
+        </title>
+
+        <desc id="trend-svg-description">
+          Blue bars show the number of publications in each publication year.
+          The dark blue line shows the sum of the current citation counts
+          displayed for those publications.
+          ${description}
+        </desc>
+
+        <line
+          x1="${left}"
+          y1="${bottom}"
+          x2="${right}"
+          y2="${bottom}"
+          stroke="#c7cfff"
+        />
+
+        <text
+          x="${left - 10}"
+          y="${top + 4}"
+          text-anchor="end"
+        >${maxDocuments}</text>
+
+        <text
+          x="${left - 10}"
+          y="${bottom + 4}"
+          text-anchor="end"
+        >0</text>
+
+        <text
+          x="${right + 10}"
+          y="${top + 4}"
+        >${maxCitations}</text>
+
+        <text
+          x="${right + 10}"
+          y="${bottom + 4}"
+        >0</text>
+
+        <text
+          transform="translate(21 117) rotate(-90)"
+          text-anchor="middle"
+        >Documents</text>
+
+        <text
+          transform="translate(502 117) rotate(90)"
+          text-anchor="middle"
+        >Citations</text>
+
+        ${bars}
+        ${line}
+        ${markers}
+        ${focusTargets}
+
       </svg>
+
       <div class="trend-tooltip" role="status" hidden></div>
     `;
 
+    // 11. Tooltip interaction
     const tooltip = chart.querySelector(".trend-tooltip");
+
     chart.querySelectorAll(".trend-year").forEach(target => {
+
       const show = () => {
-        tooltip.textContent = label(Number(target.dataset.year));
+        tooltip.textContent = label(
+          Number(target.dataset.year)
+        );
+
         tooltip.hidden = false;
       };
-      const hide = () => { tooltip.hidden = true; };
+
+      const hide = () => {
+        tooltip.hidden = true;
+      };
+
       target.addEventListener("pointerenter", show);
       target.addEventListener("pointerleave", hide);
       target.addEventListener("focus", show);
       target.addEventListener("blur", hide);
-      target.addEventListener("keydown", event => { if (event.key === "Escape") hide(); });
+
+      target.addEventListener("keydown", event => {
+        if (event.key === "Escape") hide();
+      });
+
     });
-
   }
 
-  try {
-    render(JSON.parse(document.getElementById("scopus-trend-data").textContent));
-  } catch (error) {
-    console.warn("Scopus trend data is unavailable:", error);
-    chart.innerHTML = '<p class="trend-note">Scopus 年度数据暂不可用，请点击下方来源查看。</p>';
+  // 12. Load publication data directly from publications.json
+  async function loadPublications() {
+    try {
+      const response = await fetch(
+        PUBLICATIONS_URL,
+        { cache: "no-store" }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      const publications = await response.json();
+
+      render(publications);
+
+    } catch (error) {
+      console.error(
+        "Error loading publication trend data:",
+        error
+      );
+
+      chart.innerHTML = `
+        <p class="trend-note">
+          Publication trend data is temporarily unavailable.
+        </p>
+      `;
+    }
   }
+
+  loadPublications();
+
 })();
-  </script>
+</script>
   <script>
     const PUBLICATIONS_URL = "./data/publications.json";
     const CACHE_KEY = "shun_li_publications_cache_v1";
