@@ -565,6 +565,8 @@ body footer {
   box-shadow: 0 4px 14px rgba(23, 32, 51, 0.08);
   font-size: 0.78rem;
   pointer-events: none;
+  white-space: pre-line;
+  line-height: 1.5;
 }
 
 @media (min-width: 1101px) and (max-width: 1250px) {
@@ -697,7 +699,8 @@ body footer {
     const barWidth = Math.min(24, slot * 0.3);
     const x = index => left + slot * (index + 0.5);
     const citationY = value => bottom - height * value / maxCitations;
-    const label = year => `${year} :\nDocuments: ${counts.get(year)} ；Citations: ${citations.get(year)} `;
+    const label = year => 
+      `${year} :\nDocuments: ${counts.get(year)} ；Citations: ${citations.get(year)} `;
     const description = years.map(label).join("。 ");
     const points = years.map((year, index) => `${x(index)},${citationY(citations.get(year) || 0)}`);
 
