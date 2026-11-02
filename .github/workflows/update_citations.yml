@@ -7,21 +7,90 @@ on:
       - 'scripts/update_publications.py'
       - '.github/workflows/update_citations.yml'
   schedule:
-    - cron: '17 0 * * *'  # Daily at UTC 00:17 / Beijing 08:17; avoid the busy start of the hour.
+    - cron: '27 * * * *'  # Check hourly; fetch once per Beijing day, from 08:00 onward.
   workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: google-scholar-daily-sync
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Check whether today's Scholar sync is due
+        id: sync
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timedelta, timezone
+          from urllib.parse import quote
+
+          now = datetime.now(timezone.utc)
+          beijing = timezone(timedelta(hours=8))
+          local_now = now.astimezone(beijing)
+          should_sync = True
+          reason = "No complete successful Google Scholar snapshot for today; synchronization is due."
+          try:
+              with open("data/profile.json", encoding="utf-8") as f:
+                  profile = json.load(f)
+              with open("data/scholar-metrics.json", encoding="utf-8") as f:
+                  metrics = json.load(f)
+              author_id = profile["googleScholarId"]
+              expected_source = f"https://scholar.google.com/citations?user={quote(author_id, safe='')}&hl=en"
+              total = metrics.get("total_citations")
+              points = metrics.get("citations_by_year")
+              updated_at = datetime.fromisoformat(metrics["updated_at"].replace("Z", "+00:00"))
+              if metrics.get("source") != "Google Scholar" or metrics.get("source_url") != expected_source:
+                  raise ValueError("Snapshot does not match this Google Scholar author.")
+              if type(total) is not int or total < 0 or not isinstance(points, list) or (total > 0 and not points):
+                  raise ValueError("Incomplete citation metrics.")
+              years = []
+              for point in points:
+                  year, citations = point["year"], point["citations"]
+                  if type(year) is not int or not 1900 <= year <= 2100 or type(citations) is not int or citations < 0:
+                      raise ValueError("Invalid annual citation data.")
+                  years.append(year)
+              if years != sorted(set(years)):
+                  raise ValueError("Citation years must be unique and ascending.")
+              if updated_at.utcoffset() is None or updated_at.utcoffset().total_seconds() != 0 or updated_at > now:
+                  raise ValueError("Invalid snapshot time.")
+              if updated_at.astimezone(beijing).date() == local_now.date():
+                  should_sync = False
+                  reason = f"Already synchronized today at {updated_at.astimezone(beijing):%Y-%m-%d %H:%M:%S} (UTC+8); no SerpAPI request made."
+          except (OSError, ValueError, TypeError, KeyError, AttributeError):
+              pass
+
+          if os.environ.get("GITHUB_EVENT_NAME") == "schedule" and local_now.hour < 8:
+              should_sync = False
+              reason = "Before 08:00 Beijing time; the next eligible scheduled check will handle today's sync. No SerpAPI request made."
+          print(reason)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as f:
+              f.write(f"should_sync={str(should_sync).lower()}\n")
+          if not should_sync:
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
+                  f.write(f"## Google Scholar check: skipped\n\n{reason}\n")
+          PY
 
       - name: Backup existing publications
+        if: steps.sync.outputs.should_sync == 'true'
         run: |
           if [ -f data/publications.json ]; then
             cp data/publications.json data/publications.backup.json
@@ -30,17 +99,14 @@ jobs:
             echo "No existing publications.json found."
           fi
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
       - name: Install dependencies
+        if: steps.sync.outputs.should_sync == 'true'
         run: |
           pip install --upgrade pip
           pip install requests
 
       - name: Run update script
+        if: steps.sync.outputs.should_sync == 'true'
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: |
@@ -48,6 +114,7 @@ jobs:
           python scripts/update_publications.py
 
       - name: Validate publications and Scholar metrics
+        if: steps.sync.outputs.should_sync == 'true'
         run: |
           python - <<'PY'
           import json
@@ -112,6 +179,7 @@ jobs:
           PY
 
       - name: Commit and push changes
+        if: steps.sync.outputs.should_sync == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -125,12 +193,23 @@ jobs:
             echo "No publication or Scholar metric changes detected."
           else
             git commit -m "Auto update Google Scholar publications [$(date '+%Y-%m-%d')]"
-            git push
+            for attempt in 1 2 3; do
+              git fetch origin main
+              git rebase origin/main
+              if git push origin HEAD:main; then
+                break
+              fi
+              if [ "$attempt" -eq 3 ]; then
+                echo "Could not publish the Scholar snapshot after three attempts."
+                exit 1
+              fi
+            done
             echo "Updated publications.json:"
             head -n 80 data/publications.json
           fi
 
       - name: Report successful Scholar synchronization
+        if: steps.sync.outputs.should_sync == 'true'
         run: |
           python - <<'PY'
           import json
@@ -152,7 +231,7 @@ jobs:
               "| --- | ---: |",
           ]
           summary.extend(f"| {point['year']} | {point['citations']} |" for point in metrics["citations_by_year"])
-          summary.extend(["", "Scheduled daily at 08:17 (UTC+8). GitHub may delay scheduled runs.", ""])
+          summary.extend(["", "Checked hourly. From 08:00 Beijing time onward, sync if no successful snapshot exists for today; later checks skip the API after success. GitHub may delay or drop individual scheduled events.", ""])
           report = "\n".join(summary)
           print(report)
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
