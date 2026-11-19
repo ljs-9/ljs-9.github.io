@@ -1,8 +1,8 @@
 {
   "source": "Google Scholar",
   "source_url": "https://scholar.google.com/citations?user=UdIP7WoAAAAJ&hl=en",
-  "updated_at": "2026-11-18T04:36:40.806001+00:00",
-  "total_citations": 70,
+  "updated_at": "2026-11-19T03:43:02.989904+00:00",
+  "total_citations": 71,
   "citations_by_year": [
     {
       "year": 2025,
@@ -10,7 +10,7 @@
     },
     {
       "year": 2026,
-      "citations": 66
+      "citations": 67
     }
   ]
 }
